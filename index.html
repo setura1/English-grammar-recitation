@@ -52,9 +52,11 @@
         
         #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 20px; }
         #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; }
-        #japaneseWord { font-size: 20px; color: #94a3b8; font-weight: bold; line-height: 1.5; max-width: 95%; }
+        #japaneseWord { font-size: 20px; color: #9ca3af; font-weight: bold; line-height: 1.5; max-width: 95%; }
         
-        #timerTrack { width: 100%; height: 10px; background: #1f2937; margin-top: 20px; border-radius: 5px; overflow: hidden; }
+        /* 1秒カウントダウンバー */
+        #timerTrack { width: 100%; height: 10px; background: #1f2937; margin-top: 20px; border-radius: 5px; overflow: hidden; opacity: 0; }
+        #timerTrack.active { opacity: 1; }
         #timerBar { height: 100%; background: var(--danger); width: 0%; }
 
         .progress-container { width: 100%; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; margin: 10px 0; }
@@ -72,10 +74,10 @@
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱</h1>
+        <h1>英語例文暗唱 極限修行</h1>
         
         <div class="range-box">
-            <div class="label">修行範囲と個数設定</div>
+            <div class="label">修行範囲と個数</div>
             <div class="param-grid">
                 <div class="input-group">
                     <span>開始ID</span>
@@ -95,7 +97,7 @@
                 </div>
             </div>
             <div class="input-group" style="background: rgba(255,255,255,0.1);">
-                <span>やる個数 (Default: 100)</span>
+                <span>やる個数（デフォルト100個）</span>
                 <div class="adj-container">
                     <button type="button" class="adj-btn" onclick="adjustValue('testLimit', -10)">-10</button>
                     <input type="number" id="testLimit" value="100" pattern="\d*" inputmode="numeric">
@@ -104,7 +106,7 @@
             </div>
         </div>
 
-        <div class="label">読み上げ速度（1.0が標準）</div>
+        <div class="label">読み上げ速度（1.2推奨）</div>
         <div class="input-group">
             <input type="number" id="speechRate" value="1.2" step="0.1" inputmode="decimal">
         </div>
@@ -139,9 +141,6 @@
         <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success);"></div>
         <div id="timeResultDisplay"></div>
         
-        <div class="label">復習用（今回間違えたもの）</div>
-        <textarea id="wrongWordsArea" style="height:100px;" readonly></textarea>
-        
         <div class="label">保存用暗記データ</div>
         <textarea id="numericalArea" style="height:80px;" readonly></textarea>
 
@@ -160,7 +159,6 @@ let sessionStart = null;
 
 window.onload = () => {
     const raw = document.getElementById('words-data').textContent.trim();
-    if (!raw) return;
     raw.split('\n').forEach(line => {
         const parts = line.split(',');
         if (parts.length < 2) return;
@@ -208,7 +206,7 @@ function startTraining() {
     available.sort(() => Math.random() - 0.5);
     queue = available.slice(0, testLimit);
 
-    if (queue.length === 0) return alert("データがありません。");
+    if (queue.length === 0) return alert("範囲内にデータがありません。");
 
     results = [];
     document.getElementById("setup").classList.remove('active');
@@ -218,7 +216,9 @@ function startTraining() {
 
 function nextWord() {
     clearTimeout(limitTimer);
+    const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
+    track.classList.remove('active');
     bar.style.transition = "none";
     bar.style.width = "0%";
     
@@ -243,6 +243,7 @@ function speakChain(en, ja) {
     const uttrEn = new SpeechSynthesisUtterance(en);
     uttrEn.lang = 'en-US';
     uttrEn.rate = rate;
+    // 米国英語の優先選択
     const enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
     if (enVoice) uttrEn.voice = enVoice;
 
@@ -262,12 +263,14 @@ function speakChain(en, ja) {
 }
 
 function startStressTimer() {
+    const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
+    track.classList.add('active');
     bar.style.transition = "width 1s linear";
     bar.style.width = "100%";
     
     limitTimer = setTimeout(() => {
-        processAnswer(false); // 1秒経過で強制「苦手」
+        processAnswer(false); // 1秒経過で自動不合格
     }, 1000);
 }
 
@@ -288,8 +291,6 @@ function finishTraining() {
     const correct = results.filter(r => r.ok).length;
     const accuracy = ((correct / results.length) * 100 || 0).toFixed(1);
     document.getElementById("resultScore").textContent = `${correct} / ${results.length} (${accuracy}%)`;
-    document.getElementById("timeResultDisplay").textContent = `時間: ${Math.floor((sessionEnd - sessionStart)/1000)}秒`;
-    document.getElementById("wrongWordsArea").value = results.filter(r => !r.ok).map(m => m.raw).join('\n');
     document.getElementById("numericalArea").value = Object.keys(mastery).map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`).join(',');
 }
 
@@ -301,7 +302,6 @@ document.onkeydown = (e) => {
     if (e.code === "Space") { e.preventDefault(); finishTraining(); }
 };
 </script>
-
 
 <script type="text/plain" id="words-data">
 I talk.,私は話します(主語を見抜く)1
