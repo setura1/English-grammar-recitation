@@ -3,245 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-    <title>英語例文暗唱 極限修行版V7.2</title>
+    <title>英語例文暗唱修行 V14.0 究極管理版</title>
     <style>
         :root {
-            --bg: #070b14;
+            --bg: #030712;
             --container: #111827;
+            --card-bg: #1f2937;
             --text: #f9fafb;
-            --primary: #2563eb;
-            --success: #059669;
-            --danger: #dc2626;
-            --gray: #4b5563;
-            --accent: #7c3aed;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --gray: #6b7280;
+            --accent: #8b5cf6;
+            --gold: #fbbf24;
+            --silver: #94a3b8;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         html, body { 
             margin: 0; width: 100%; height: 100%; background: var(--bg); 
-            font-family: 'Inter', 'Hiragino Kaku Gothic ProN', sans-serif; color: var(--text); 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); 
             overflow-x: hidden; touch-action: manipulation;
         }
         
-        #setup, #report { padding: 15px; min-height: 100vh; overflow-y: auto; display: none; }
+        #setup, #report { padding: 20px; min-height: 100vh; overflow-y: auto; display: none; }
         #setup.active, #report.active { display: block; }
-        #app { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; padding: 20px; z-index: 100; }
+        #app { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; padding: 12px; z-index: 100; }
         #app.active { display: flex; }
 
-        .container { max-width: 600px; margin: 0 auto; background: var(--container); border-radius: 24px; padding: 20px; border: 1px solid #1f2937; }
-        h1 { font-size: 20px; text-align: center; margin-bottom: 20px; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
-        
-        .label { font-size: 11px; font-weight: bold; color: var(--gray); margin: 12px 0 4px 4px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        @media (max-width: 480px) { .param-grid { grid-template-columns: 1fr; } }
+        .container { max-width: 650px; margin: 0 auto; background: var(--container); border-radius: 28px; padding: 24px; border: 1px solid #374151; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        h1 { font-size: 22px; text-align: center; margin: 0 0 15px 0; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
 
-        .input-group { background: #1f2937; padding: 8px; border-radius: 12px; border: 1px solid #374151; }
-        .input-group span { font-size: 9px; display: block; margin-bottom: 4px; color: #9ca3af; }
+        .dashboard { background: rgba(31, 41, 55, 0.5); border-radius: 24px; padding: 18px; margin-bottom: 24px; border: 1px solid #374151; }
+        .db-bar { height: 14px; display: flex; border-radius: 7px; overflow: hidden; background: #030712; margin-bottom: 12px; }
+        .db-seg { height: 100%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .seg-a { background: var(--gold); }
+        .seg-b { background: var(--accent); }
+        .seg-c { background: var(--danger); }
+        .seg-new { background: #4b5563; }
+        .db-legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .lg-item { text-align: center; }
+        .lg-label { font-size: 10px; color: var(--gray); display: block; margin-bottom: 2px; }
+        .lg-val { font-size: 13px; font-weight: 900; }
+
+        .label { font-size: 11px; font-weight: 800; color: var(--silver); margin: 16px 0 6px 4px; display: flex; justify-content: space-between; align-items: center; }
+        .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+        @media (max-width: 420px) { .param-grid { grid-template-columns: 1fr; } }
+
+        .input-group { background: #1f2937; padding: 12px; border-radius: 18px; border: 1px solid #374151; }
+        .input-group span { font-size: 10px; margin-bottom: 6px; color: #9ca3af; display: block; font-weight: bold; }
         
-        .adj-container { display: flex; align-items: center; gap: 6px; }
-        .adj-btn { background: #374151; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .adj-btn:active { background: var(--primary); transform: scale(0.9); }
+        .adj-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .adj-btn { background: #334155; color: white; border: none; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; min-width: 44px; }
+        .adj-btn:active { transform: scale(0.9); background: var(--primary); }
 
-        input { 
-            flex: 1; min-width: 40px; background: transparent; border: none; color: white; 
-            font-size: 16px; font-weight: bold; outline: none; text-align: center;
-        }
+        input { width: 70px; background: transparent; border: none; color: white; font-size: 20px; font-weight: 900; text-align: center; }
 
-        .range-box { background: #1e1b4b; padding: 12px; border-radius: 16px; border: 1px solid var(--accent); margin-bottom: 15px; }
-        textarea { width: 100%; height: 60px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 12px; padding: 10px; font-size: 11px; margin-top: 5px; outline: none; resize: none; }
+        .range-box { background: linear-gradient(145deg, #1e1b4b, #111827); padding: 18px; border-radius: 24px; border: 1px solid var(--accent); margin-bottom: 18px; }
+        textarea { width: 100%; height: 55px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 14px; padding: 12px; font-size: 12px; margin-top: 6px; outline: none; resize: none; word-break: break-all; }
 
-        button.main-btn { width: 100%; height: 56px; border: none; border-radius: 16px; font-size: 18px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
-        button.main-btn:active { transform: scale(0.98); }
+        button.main-btn { width: 100%; height: 64px; border: none; border-radius: 22px; font-size: 22px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 12px 24px -6px rgba(59, 130, 246, 0.5); }
+        button.main-btn:active { transform: scale(0.97); }
 
-        .copy-btn { background: var(--gray); color: white; border: none; padding: 3px 10px; border-radius: 6px; font-size: 9px; cursor: pointer; font-weight: bold; }
+        .sm-btn { background: #374151; color: white; border: none; padding: 7px 14px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: 800; }
+        .io-btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
         
-        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 15px; }
-        #englishWord { font-size: 28px; font-weight: 900; line-height: 1.2; color: var(--text); word-break: break-word; max-width: 95%; }
-        #japaneseWord { font-size: 18px; color: #9ca3af; font-weight: bold; line-height: 1.4; max-width: 95%; }
+        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; gap: 15px; background: var(--card-bg); border-radius: 48px; margin: 10px 0; position: relative; border: 1px solid #374151; box-shadow: inset 0 0 40px rgba(0,0,0,0.4); }
+        #wordBadge { position: absolute; top: 30px; font-size: 20px; font-weight: 900; padding: 4px 18px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid currentColor; }
         
-        #timerTrack { width: 100%; height: 8px; background: #1f2937; margin-top: 15px; border-radius: 4px; overflow: hidden; opacity: 0; }
+        /* 例文用サイズ調整 */
+        #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; margin-top: 40px; letter-spacing: -0.5px; }
+        #japaneseWord { font-size: 20px; color: var(--primary); font-weight: 800; visibility: hidden; min-height: 1.5em; margin-top: 15px; line-height: 1.4; }
+        #japaneseWord.visible { visibility: visible; }
+        
+        #timerTrack { width: 100%; height: 10px; background: #030712; margin-top: 25px; border-radius: 10px; overflow: hidden; opacity: 0; }
         #timerTrack.active { opacity: 1; }
         #timerBar { height: 100%; background: var(--danger); width: 0%; }
 
-        .progress-container { width: 100%; height: 4px; background: #1f2937; border-radius: 2px; overflow: hidden; margin: 8px 0; }
-        #progressBar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        .progress-container { width: 100%; height: 8px; background: #1f2937; border-radius: 10px; overflow: hidden; margin: 8px 0; }
+        #progressBar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s linear; }
         
-        .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px; }
-        .ans-btn { height: 75px; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; cursor: pointer; }
-        #correctBtn { background: var(--success); }
-        #wrongBtn { background: var(--danger); }
+        .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; margin-bottom: 12px; }
+        .ans-btn { height: 90px; border: none; border-radius: 32px; color: white; font-size: 26px; font-weight: 900; cursor: pointer; transition: 0.15s; }
+        .ans-btn:active { transform: scale(0.94); }
+        #correctBtn { background: var(--success); box-shadow: 0 8px 20px -5px rgba(16, 185, 129, 0.4); }
+        #wrongBtn { background: var(--danger); box-shadow: 0 8px 20px -5px rgba(239, 68, 68, 0.4); }
     </style>
 </head>
 <body>
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱 極限修行 V7.2</h1>
+        <h1>英語例文暗唱修行 V14.0</h1>
+
+        <div class="dashboard">
+            <div class="db-bar">
+                <div id="bar-a" class="db-seg seg-a"></div>
+                <div id="bar-b" class="db-seg seg-b"></div>
+                <div id="bar-c" class="db-seg seg-c"></div>
+                <div id="bar-new" class="db-seg seg-new"></div>
+            </div>
+            <div class="db-legend">
+                <div class="lg-item"><span class="lg-label">完了(a)</span><span id="val-a" class="lg-val" style="color:var(--gold)">0</span></div>
+                <div class="lg-item"><span class="lg-label">継続(b)</span><span id="val-b" class="lg-val" style="color:var(--accent)">0</span></div>
+                <div class="lg-item"><span class="lg-label">苦手(c)</span><span id="val-c" class="lg-val" style="color:var(--danger)">0</span></div>
+                <div class="lg-item"><span class="lg-label">未着手</span><span id="val-new" class="lg-val" style="color:var(--silver)">0</span></div>
+            </div>
+        </div>
         
+        <div class="input-group" style="margin-bottom:15px; background: #1e1b4b;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:6px;">
+                <span style="color:#fff">データ復元 / 書き出し</span>
+                <div style="display:flex; gap:6px;">
+                    <button class="io-btn" onclick="exportData()">出す</button>
+                    <button class="io-btn" style="background:#4b5563;" onclick="clearImport()">消去</button>
+                </div>
+            </div>
+            <textarea id="importArea" oninput="updateDashboard()" placeholder="ここに「保存用データ」を貼り付けて復元"></textarea>
+        </div>
+
         <div class="range-box">
-            <div class="label">修行範囲と個数</div>
+            <div class="label">修行範囲と出題数</div>
             <div class="param-grid">
                 <div class="input-group">
                     <span>開始ID</span>
-                    <div class="adj-container">
-                        <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', -100)">-100</button>
-                        <input type="number" id="rangeStart" value="1" inputmode="numeric">
-                        <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', 100)">+100</button>
-                    </div>
+                    <div class="adj-container"><button class="adj-btn" onclick="adj('rangeStart', -100)">-</button><input type="number" id="rangeStart" value="1"><button class="adj-btn" onclick="adj('rangeStart', 100)">+</button></div>
                 </div>
                 <div class="input-group">
                     <span>終了ID</span>
-                    <div class="adj-container">
-                        <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', -100)">-100</button>
-                        <input type="number" id="rangeEnd" value="1000" inputmode="numeric">
-                        <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', 100)">+100</button>
-                    </div>
+                    <div class="adj-container"><button class="adj-btn" onclick="adj('rangeEnd', -100)">-</button><input type="number" id="rangeEnd" value="1000"><button class="adj-btn" onclick="adj('rangeEnd', 100)">+</button></div>
                 </div>
             </div>
-            <div class="input-group" style="background: rgba(255,255,255,0.05); margin-top: 8px;">
-                <span>やる個数</span>
-                <div class="adj-container">
-                    <button type="button" class="adj-btn" onclick="adjustValue('testLimit', -10)">-10</button>
-                    <input type="number" id="testLimit" value="100" inputmode="numeric">
-                    <button type="button" class="adj-btn" onclick="adjustValue('testLimit', 10)">+10</button>
-                </div>
+            <div class="input-group" style="background: rgba(255,255,255,0.05); margin-top:8px;">
+                <span>今回の修行数</span>
+                <div class="adj-container"><button class="adj-btn" onclick="adj('testLimit', -50)">-50</button><input type="number" id="testLimit" value="50"><button class="adj-btn" onclick="adj('testLimit', 50)">+50</button></div>
             </div>
         </div>
 
-        <div class="label">読み上げ速度（英 / 日）</div>
+        <div class="label">修行テンポ設定</div>
         <div class="param-grid">
+            <div class="input-group"><span>英語速度</span><input type="number" id="rateEn" value="1.2" step="0.1"></div>
+            <div class="input-group"><span>日本語速度</span><input type="number" id="rateJa" value="1.5" step="0.1"></div>
             <div class="input-group">
-                <span>英語</span>
-                <input type="number" id="speechRateEn" value="1.2" step="0.1" inputmode="decimal">
-            </div>
-            <div class="input-group">
-                <span>日本語</span>
-                <input type="number" id="speechRateJa" value="1.2" step="0.1" inputmode="decimal">
+                <span>解答猶予(秒)</span>
+                <div class="adj-container"><button class="adj-btn" onclick="adjF('limitTime', -0.1)">-</button><input type="number" id="limitTime" value="1.0" step="0.1"><button class="adj-btn" onclick="adjF('limitTime', 0.1)">+</button></div>
             </div>
         </div>
 
-        <div class="label">回答猶予（日本語終了後）</div>
-        <div class="input-group">
-            <div class="adj-container">
-                <button type="button" class="adj-btn" onclick="adjustValueFloat('limitSeconds', -0.1)">-0.1s</button>
-                <input type="number" id="limitSeconds" value="1.0" step="0.1" inputmode="decimal">
-                <button type="button" class="adj-btn" onclick="adjustValueFloat('limitSeconds', 0.1)">+0.1s</button>
-            </div>
-        </div>
-
-        <div class="label">データ復元（ID:Lv:Iv,...）</div>
-        <textarea id="importArea" placeholder="ここに保存用データを貼り付け"></textarea>
-
-        <button class="main-btn" onclick="startTraining()" style="margin-top: 15px;">修行開始</button>
+        <button class="main-btn" onclick="startTraining()">修行開始</button>
     </div>
 </div>
 
 <div id="app">
-    <div id="infoText" style="text-align:center; font-size:11px; color:var(--gray); margin-bottom:4px;"></div>
+    <div id="infoText" style="text-align:center; font-size:11px; color:var(--gray); margin-bottom:4px; font-weight:bold;"></div>
     <div class="progress-container"><div id="progressBar"></div></div>
     <div id="card">
+        <div id="wordBadge">NEW</div>
         <div id="englishWord"></div>
         <div id="japaneseWord"></div>
         <div id="timerTrack"><div id="timerBar"></div></div>
     </div>
     <div class="ans-btns">
         <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
-        <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">正解 (Z)</button>
+        <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">わかる (Z)</button>
     </div>
-    <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:11px; cursor:pointer; padding-bottom: 10px;">中断 (Space)</button>
+    <div style="display:flex; justify-content: space-between; padding: 5px 10px;">
+        <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:12px; font-weight:bold; cursor:pointer;">中断 (Space)</button>
+        <button onclick="quickCopy()" id="midBtn" class="sm-btn">進捗保存コピー</button>
+    </div>
 </div>
 
 <div id="report">
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
-        <div id="resultScore" style="font-size:24px; font-weight:900; color:var(--success); margin-bottom:15px;"></div>
-        
-        <div class="label">
-            <span>間違えた問題リスト</span>
-            <button class="copy-btn" onclick="copyText('wrongWordsArea', this)">コピー</button>
-        </div>
-        <textarea id="wrongWordsArea" style="height:100px; color:var(--danger);" readonly></textarea>
-
-        <div class="label" style="margin-top:15px;">
-            <span>保存用数値データ</span>
-            <button class="copy-btn" onclick="copyText('numericalArea', this)">コピー</button>
-        </div>
-        <textarea id="numericalArea" style="height:50px;" readonly></textarea>
-
-        <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップに戻る</button>
+        <div id="resultScore" style="font-size:32px; font-weight:900; color:var(--success); margin-bottom:20px;"></div>
+        <div class="label"><span>今回間違えた例文</span><button class="sm-btn" onclick="copyText('wrongListArea', this)">コピー</button></div>
+        <textarea id="wrongListArea" style="height:110px; color:var(--danger); border-color:var(--danger);" readonly></textarea>
+        <div class="label" style="margin-top:20px;"><span>保存用数値データ</span><button class="sm-btn" onclick="copyText('numericalArea', this)">コピー</button></div>
+        <textarea id="numericalArea" style="height:70px;" readonly></textarea>
+        <button class="main-btn" onclick="location.reload()" style="margin-top:30px; background:var(--gray);">トップへ戻る</button>
     </div>
 </div>
 
 <script>
+let TOTAL_DATA_COUNT = 0;
 const WORDS = [];
-const mastery = {};
+let mastery = {};
 let queue = [];
 let results = [];
 let activeWord = null;
-let limitTimer = null;
+let stressTimer = null;
+let enVoice = null;
 
-function loadWords() {
-    const dataNode = document.getElementById('words-data');
+// 音声品質の追求
+function setupVoices() {
+    const fn = () => {
+        const voices = window.speechSynthesis.getVoices();
+        enVoice = voices.find(v => v.name.includes('Google') && v.lang === 'en-US') || 
+                  voices.find(v => v.name.includes('Premium') && v.lang.startsWith('en')) ||
+                  voices.find(v => v.name.includes('Natural') && v.lang.startsWith('en')) ||
+                  voices.find(v => v.lang === 'en-US') || 
+                  voices.find(v => v.lang.startsWith('en'));
+    };
+    fn();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = fn;
+    }
+}
+
+window.onload = () => {
+    loadData();
+    const savedM = localStorage.getItem('recitation_mastery_v14');
+    if (savedM) mastery = JSON.parse(savedM);
+    const savedC = localStorage.getItem('recitation_config_v14');
+    if (savedC) {
+        const c = JSON.parse(savedC);
+        ['rangeStart', 'rangeEnd', 'rateEn', 'rateJa', 'limitTime', 'testLimit'].forEach(k => {
+            if (c[k]) document.getElementById(k).value = c[k];
+        });
+    }
+    setupVoices();
+    updateDashboard();
+};
+
+function loadData() {
+    const dataNode = document.getElementById('words-raw-data');
     if (!dataNode) return;
     const raw = dataNode.textContent.trim();
+    const idMap = new Map();
     raw.split('\n').forEach(line => {
         const parts = line.split(',');
         if (parts.length < 2) return;
-        const en = parts[0].trim();
-        const jaFull = parts[1].trim();
-        const m = jaFull.match(/^(.*?)(\d+)$/);
+        const m = parts[1].trim().match(/^(.*?)(\d+)$/);
         if (m) {
             const id = parseInt(m[2]);
-            WORDS.push({ id, en, ja: m[1], raw: line });
-            mastery[id] = { lv: 0, iv: 1 };
+            idMap.set(id, { id, en: parts[0].trim(), ja: m[1], raw: line });
         }
     });
+    WORDS.length = 0;
+    WORDS.push(...Array.from(idMap.values()));
+    TOTAL_DATA_COUNT = WORDS.length;
 }
 
-function adjustValue(id, delta) {
-    const el = document.getElementById(id);
-    let val = parseInt(el.value) || 0;
-    val += delta;
-    if (val < 1) val = 1;
-    el.value = val;
+function updateDashboard() {
+    const impTxt = document.getElementById('importArea').value.trim();
+    const tempMastery = {...mastery};
+    if (impTxt) {
+        impTxt.split(',').forEach(t => {
+            const m = t.match(/(\d+)([abc])/);
+            if (m) tempMastery[parseInt(m[1])] = m[2];
+        });
+    }
+    const counts = { a: 0, b: 0, c: 0, new: 0 };
+    Object.values(tempMastery).forEach(v => counts[v]++);
+    counts.new = Math.max(0, TOTAL_DATA_COUNT - (counts.a + counts.b + counts.c));
+
+    if(TOTAL_DATA_COUNT > 0) {
+        ['a', 'b', 'c', 'new'].forEach(k => {
+            const pct = (counts[k] / TOTAL_DATA_COUNT * 100).toFixed(1);
+            document.getElementById(`bar-${k}`).style.width = pct + '%';
+            document.getElementById(`val-${k}`).textContent = `${counts[k]} (${pct}%)`;
+        });
+    }
 }
 
-function adjustValueFloat(id, delta) {
-    const el = document.getElementById(id);
-    let val = parseFloat(el.value) || 0;
-    val = Math.max(0.1, Math.round((val + delta) * 10) / 10);
-    el.value = val.toFixed(1);
-}
-
-function copyText(id, btn) {
-    const area = document.getElementById(id);
-    area.select();
-    navigator.clipboard.writeText(area.value).then(() => {
-        const originalText = btn.textContent;
-        btn.textContent = "完了";
-        setTimeout(() => btn.textContent = originalText, 1000);
+function saveAll() {
+    localStorage.setItem('recitation_mastery_v14', JSON.stringify(mastery));
+    const config = {};
+    ['rangeStart', 'rangeEnd', 'rateEn', 'rateJa', 'limitTime', 'testLimit'].forEach(k => {
+        config[k] = document.getElementById(k).value;
     });
+    localStorage.setItem('recitation_config_v14', JSON.stringify(config));
+}
+
+function adj(id, delta) {
+    const el = document.getElementById(id);
+    el.value = Math.max(1, parseInt(el.value) + delta);
+    if(id==='rangeEnd' && el.value > TOTAL_DATA_COUNT) el.value = TOTAL_DATA_COUNT;
+    saveAll(); updateDashboard();
+}
+
+function adjF(id, delta) {
+    const el = document.getElementById(id);
+    let v = parseFloat(el.value) || 0;
+    el.value = Math.max(0.1, Math.round((v + delta) * 10) / 10).toFixed(1);
+    saveAll();
 }
 
 function startTraining() {
-    if (WORDS.length === 0) loadWords();
-    const startNum = parseInt(document.getElementById('rangeStart').value) || 1;
-    const endNum = parseInt(document.getElementById('rangeEnd').value) || 1000;
-    const testLimit = parseInt(document.getElementById('testLimit').value) || 100;
+    if (WORDS.length === 0) loadData();
     const imp = document.getElementById('importArea').value.trim();
     if (imp) {
-        imp.split(',').forEach(e => {
-            const p = e.split(':');
-            if (p.length >= 3) {
-                const id = Number(p[0]);
-                if (mastery[id]) { mastery[id].lv = Number(p[1]); mastery[id].iv = Number(p[2]); }
-            }
+        imp.split(',').forEach(t => {
+            const m = t.match(/(\d+)([abc])/);
+            if (m) mastery[parseInt(m[1])] = m[2];
         });
     }
-    let available = WORDS.filter(w => w.id >= startNum && w.id <= endNum);
-    available.sort(() => Math.random() - 0.5);
-    queue = available.slice(0, testLimit);
-    if (queue.length === 0) return alert("範囲内にデータがありません。");
+    saveAll();
+    
+    const start = parseInt(document.getElementById('rangeStart').value);
+    const end = parseInt(document.getElementById('rangeEnd').value);
+    const limit = parseInt(document.getElementById('testLimit').value);
+    
+    let available = WORDS.filter(w => w.id >= start && w.id <= end);
+    const priority = (id) => {
+        const s = mastery[id];
+        if (s === 'c') return 1;
+        if (!s) return 1.5;
+        if (s === 'b') return 2;
+        return 3;
+    };
+    available.sort((x, y) => priority(x.id) - priority(y.id) || Math.random() - 0.5);
+    queue = available.slice(0, limit);
+
+    if (queue.length === 0) return alert("範囲内に例文が見つかりません。");
     results = [];
     document.getElementById("setup").classList.remove('active');
     document.getElementById("app").classList.add('active');
@@ -249,55 +323,77 @@ function startTraining() {
 }
 
 function nextWord() {
-    clearTimeout(limitTimer);
+    clearTimeout(stressTimer);
     const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
+    const jaEl = document.getElementById("japaneseWord");
     track.classList.remove('active');
     bar.style.transition = "none";
     bar.style.width = "0%";
+    jaEl.classList.remove('visible');
+    
     if (queue.length === 0) return finishTraining();
     activeWord = queue.shift();
-    const total = results.length + queue.length + 1;
-    document.getElementById("infoText").textContent = `ID: ${activeWord.id} | ${results.length + 1} / ${total}`;
-    document.getElementById("progressBar").style.width = `${(results.length / total) * 100}%`;
+    
+    const currentNum = results.length + 1;
+    const totalNum = results.length + queue.length + 1;
+    document.getElementById("infoText").textContent = `ID:${activeWord.id} | ${currentNum} / ${totalNum}`;
+    document.getElementById("progressBar").style.width = `${(results.length / totalNum) * 100}%`;
+    
+    const badge = document.getElementById("wordBadge");
+    const status = mastery[activeWord.id];
+    badge.textContent = status ? status : "NEW";
+    badge.style.color = status === 'c' ? "var(--danger)" : (status === 'b' ? "var(--accent)" : (status === 'a' ? "var(--gold)" : "var(--silver)"));
+
     document.getElementById("englishWord").textContent = activeWord.en;
     document.getElementById("japaneseWord").textContent = activeWord.ja;
-    speakChain(activeWord.en, activeWord.ja);
+    
+    speakEn(activeWord.en);
 }
 
-function speakChain(en, ja) {
+function speakEn(txt) {
     window.speechSynthesis.cancel();
-    const rateEn = parseFloat(document.getElementById('speechRateEn').value) || 1.2;
-    const rateJa = parseFloat(document.getElementById('speechRateJa').value) || 1.2;
-    const voices = window.speechSynthesis.getVoices();
-    const uttrEn = new SpeechSynthesisUtterance(en);
-    uttrEn.lang = 'en-US';
-    uttrEn.rate = rateEn;
-    const enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) uttrEn.voice = enVoice;
-    const uttrJa = new SpeechSynthesisUtterance(ja);
-    uttrJa.lang = 'ja-JP';
-    uttrJa.rate = rateJa;
-    uttrEn.onend = () => window.speechSynthesis.speak(uttrJa);
-    uttrJa.onend = () => startStressTimer();
-    window.speechSynthesis.speak(uttrEn);
+    const ut = new SpeechSynthesisUtterance(txt);
+    ut.lang = 'en-US';
+    ut.rate = parseFloat(document.getElementById('rateEn').value) || 1.2;
+    if (enVoice) ut.voice = enVoice;
+    ut.onend = () => {
+        document.getElementById("japaneseWord").classList.add('visible');
+        speakJa(activeWord.ja);
+    };
+    window.speechSynthesis.speak(ut);
+}
+
+function speakJa(txt) {
+    const ut = new SpeechSynthesisUtterance(txt);
+    ut.lang = 'ja-JP';
+    ut.rate = parseFloat(document.getElementById('rateJa').value) || 1.5;
+    ut.onend = () => startStressTimer();
+    window.speechSynthesis.speak(ut);
 }
 
 function startStressTimer() {
-    const seconds = parseFloat(document.getElementById('limitSeconds').value) || 1.0;
+    const sec = parseFloat(document.getElementById('limitTime').value) || 1.0;
     const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
     track.classList.add('active');
-    bar.style.transition = `width ${seconds}s linear`;
+    bar.style.transition = `width ${sec}s linear`;
     bar.style.width = "100%";
-    limitTimer = setTimeout(() => processAnswer(false), seconds * 1000);
+    stressTimer = setTimeout(() => processAnswer(false), sec * 1000);
 }
 
 function processAnswer(isOk) {
-    clearTimeout(limitTimer);
-    const m = mastery[activeWord.id];
-    if (isOk) { m.lv++; m.iv *= 2; } else { m.lv = 0; m.iv = 1; }
+    clearTimeout(stressTimer);
+    const id = activeWord.id;
+    const prev = mastery[id];
+    if (isOk) {
+        if (prev === 'c') mastery[id] = 'b';
+        else mastery[id] = 'a';
+    } else {
+        mastery[id] = 'c';
+    }
     results.push({ ...activeWord, ok: isOk });
+    saveAll();
     nextWord();
 }
 
@@ -305,27 +401,56 @@ function finishTraining() {
     window.speechSynthesis.cancel();
     document.getElementById("app").classList.remove('active');
     document.getElementById("report").classList.add('active');
-    const correct = results.filter(r => r.ok).length;
-    const wrongOnes = results.filter(r => !r.ok);
-    const accuracy = ((correct / results.length) * 100 || 0).toFixed(1);
-    document.getElementById("resultScore").textContent = `${correct} / ${results.length} (${accuracy}%)`;
-    document.getElementById("wrongWordsArea").value = wrongOnes.map(r => r.raw).join('\n');
-    document.getElementById("numericalArea").value = Object.keys(mastery)
-        .filter(id => mastery[id].lv > 0 || mastery[id].iv > 1)
-        .map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`)
-        .join(',');
+    const okCount = results.filter(r => r.ok).length;
+    const missed = results.filter(r => !r.ok);
+    const accuracy = ((okCount / results.length) * 100 || 0).toFixed(1);
+    document.getElementById("resultScore").textContent = `${okCount} / ${results.length} (${accuracy}%)`;
+    document.getElementById("wrongListArea").value = missed.map(m => m.raw).join('\n');
+    document.getElementById("numericalArea").value = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
+}
+
+function quickCopy() {
+    saveAll();
+    const s = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
+    navigator.clipboard.writeText(s).then(() => {
+        const b = document.getElementById('midBtn');
+        const old = b.textContent;
+        b.textContent = "コピー完了";
+        setTimeout(() => b.textContent = old, 1000);
+    });
+}
+
+function copyText(id, btn) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.value).then(() => {
+        const old = btn.textContent;
+        btn.textContent = "完了";
+        setTimeout(() => btn.textContent = old, 1000);
+    });
+}
+
+function exportData() {
+    const s = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
+    document.getElementById('importArea').value = s;
+    navigator.clipboard.writeText(s).then(() => alert("データをコピーしました"));
+}
+
+function clearImport() {
+    if(!confirm("リセットしますか？")) return;
+    mastery = {}; document.getElementById('importArea').value = '';
+    localStorage.removeItem('recitation_mastery_v14'); updateDashboard();
 }
 
 document.onkeydown = (e) => {
     if (!document.getElementById("app").classList.contains('active')) return;
     const k = e.key.toLowerCase();
-    if (k === "z") processAnswer(true);
-    if (k === "a") processAnswer(false);
-    if (e.code === "Space") { e.preventDefault(); finishTraining(); }
+    if (k === 'z') processAnswer(true);
+    if (k === 'a') processAnswer(false);
+    if (e.code === 'Space') { e.preventDefault(); finishTraining(); }
 };
-
-window.onload = loadWords;
 </script>
+
+
 
 <script type="text/plain" id="words-data">
 I talk.,私は話します(主語を見抜く)1
