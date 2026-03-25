@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-    <title>英語例文暗唱 極限修行版V7.0</title>
+    <title>英語例文暗唱 極限修行版V7.1</title>
     <style>
         :root {
             --bg: #070b14;
@@ -45,10 +45,13 @@
         }
 
         .range-box { background: #1e1b4b; padding: 15px; border-radius: 16px; border: 1px solid var(--accent); margin-bottom: 15px; }
-        textarea { width: 100%; height: 60px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 12px; padding: 10px; font-size: 11px; margin-top: 5px; outline: none; }
+        textarea { width: 100%; height: 60px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 12px; padding: 10px; font-size: 11px; margin-top: 5px; outline: none; resize: none; }
 
         button.main-btn { width: 100%; height: 60px; border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
         button.main-btn:active { transform: scale(0.98); }
+
+        .copy-btn { background: var(--gray); color: white; border: none; padding: 4px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; font-weight: bold; margin-bottom: 4px; }
+        .copy-btn:active { background: var(--primary); }
         
         #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 20px; }
         #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; }
@@ -65,15 +68,13 @@
         .ans-btn { height: 85px; border: none; border-radius: 28px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; }
         #correctBtn { background: var(--success); }
         #wrongBtn { background: var(--danger); }
-        
-        #timeResultDisplay { font-size: 12px; color: var(--gray); margin-bottom: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱 極限修行 V7.0</h1>
+        <h1>英語例文暗唱 極限修行 V7.1</h1>
         
         <div class="range-box">
             <div class="label">修行範囲と個数</div>
@@ -149,12 +150,18 @@
 <div id="report">
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
-        <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success);"></div>
+        <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success); margin-bottom:10px;"></div>
         
-        <div class="label">間違えた問題（コピー用）</div>
-        <textarea id="wrongWordsArea" style="height:100px; color:var(--danger);" readonly></textarea>
+        <div class="label">
+            <span>間違えた問題</span>
+            <button class="copy-btn" onclick="copyText('wrongWordsArea')">リストをコピー</button>
+        </div>
+        <textarea id="wrongWordsArea" style="height:120px; color:var(--danger);" readonly></textarea>
 
-        <div class="label">保存用数値データ（ID:Lv:Iv）</div>
+        <div class="label">
+            <span>保存用数値データ</span>
+            <button class="copy-btn" onclick="copyText('numericalArea')">データをコピー</button>
+        </div>
         <textarea id="numericalArea" style="height:60px;" readonly></textarea>
 
         <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップへ戻る</button>
@@ -169,7 +176,6 @@ let results = [];
 let activeWord = null;
 let limitTimer = null;
 
-// 音声リストの初期化を促進
 window.speechSynthesis.getVoices();
 
 function loadWords() {
@@ -196,6 +202,17 @@ function adjustValue(id, delta) {
     val += delta;
     if (val < 1) val = 1;
     el.value = val;
+}
+
+function copyText(id) {
+    const area = document.getElementById(id);
+    area.select();
+    navigator.clipboard.writeText(area.value).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = "コピー完了";
+        setTimeout(() => btn.textContent = original, 1500);
+    });
 }
 
 function startTraining() {
@@ -317,10 +334,8 @@ function finishTraining() {
     
     document.getElementById("resultScore").textContent = `${correct} / ${results.length} (${accuracy}%)`;
     
-    // 間違えた単語のみ出力
     document.getElementById("wrongWordsArea").value = wrongOnes.map(r => r.raw).join('\n');
     
-    // 保存用数値データ（ID:Lv:Ivのみ）
     document.getElementById("numericalArea").value = Object.keys(mastery)
         .filter(id => mastery[id].lv > 0 || mastery[id].iv > 1)
         .map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`)
@@ -339,7 +354,6 @@ window.onload = loadWords;
 </script>
 
 <script type="text/plain" id="words-data">
-
 I talk.,私は話します(主語を見抜く)1
 He laughs.,彼は笑います(動詞を見抜く)2
 I drink coffee.,私はコーヒーを飲みます(目的語を見抜く)3
