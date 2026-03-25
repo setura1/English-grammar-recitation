@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-    <title>英語例文暗唱 極限修行版V6.0</title>
+    <title>英語例文暗唱 極限修行版V7.0</title>
     <style>
         :root {
             --bg: #070b14;
@@ -22,7 +22,7 @@
             overflow-x: hidden; touch-action: manipulation;
         }
         
-        #setup, #report { padding: 20px; height: 100vh; overflow-y: auto; display: none; }
+        #setup, #report { padding: 20px; min-height: 100vh; overflow-y: auto; display: none; }
         #setup.active, #report.active { display: block; }
         #app { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; padding: 20px; z-index: 100; }
         #app.active { display: flex; }
@@ -54,7 +54,6 @@
         #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; }
         #japaneseWord { font-size: 20px; color: #9ca3af; font-weight: bold; line-height: 1.5; max-width: 95%; }
         
-        /* 1秒カウントダウンバー */
         #timerTrack { width: 100%; height: 10px; background: #1f2937; margin-top: 20px; border-radius: 5px; overflow: hidden; opacity: 0; }
         #timerTrack.active { opacity: 1; }
         #timerBar { height: 100%; background: var(--danger); width: 0%; }
@@ -74,7 +73,7 @@
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱 極限修行</h1>
+        <h1>英語例文暗唱 極限修行 V7.0</h1>
         
         <div class="range-box">
             <div class="label">修行範囲と個数</div>
@@ -97,7 +96,7 @@
                 </div>
             </div>
             <div class="input-group" style="background: rgba(255,255,255,0.1);">
-                <span>やる個数（デフォルト100個）</span>
+                <span>やる個数</span>
                 <div class="adj-container">
                     <button type="button" class="adj-btn" onclick="adjustValue('testLimit', -10)">-10</button>
                     <input type="number" id="testLimit" value="100" pattern="\d*" inputmode="numeric">
@@ -106,12 +105,24 @@
             </div>
         </div>
 
-        <div class="label">読み上げ速度（1.2推奨）</div>
-        <div class="input-group">
-            <input type="number" id="speechRate" value="1.2" step="0.1" inputmode="decimal">
+        <div class="label">読み上げ速度設定</div>
+        <div class="param-grid">
+            <div class="input-group">
+                <span>英語速度</span>
+                <input type="number" id="speechRateEn" value="1.2" step="0.1" inputmode="decimal">
+            </div>
+            <div class="input-group">
+                <span>日本語速度</span>
+                <input type="number" id="speechRateJa" value="1.2" step="0.1" inputmode="decimal">
+            </div>
         </div>
 
-        <div class="label">データ復元（前回の数値を貼り付け）</div>
+        <div class="label">回答猶予（日本語終了後 何秒で不合格か）</div>
+        <div class="input-group">
+            <input type="number" id="limitSeconds" value="1.0" step="0.1" inputmode="decimal">
+        </div>
+
+        <div class="label">データ復元</div>
         <textarea id="importArea" placeholder="ID:Lv:Iv,..."></textarea>
 
         <button class="main-btn" onclick="startTraining()">修行開始</button>
@@ -139,10 +150,12 @@
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
         <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success);"></div>
-        <div id="timeResultDisplay"></div>
         
-        <div class="label">保存用暗記データ</div>
-        <textarea id="numericalArea" style="height:80px;" readonly></textarea>
+        <div class="label">間違えた問題（コピー用）</div>
+        <textarea id="wrongWordsArea" style="height:100px; color:var(--danger);" readonly></textarea>
+
+        <div class="label">保存用数値データ（ID:Lv:Iv）</div>
+        <textarea id="numericalArea" style="height:60px;" readonly></textarea>
 
         <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップへ戻る</button>
     </div>
@@ -155,10 +168,14 @@ let queue = [];
 let results = [];
 let activeWord = null;
 let limitTimer = null;
-let sessionStart = null;
 
-window.onload = () => {
-    const raw = document.getElementById('words-data').textContent.trim();
+// 音声リストの初期化を促進
+window.speechSynthesis.getVoices();
+
+function loadWords() {
+    const dataNode = document.getElementById('words-data');
+    if (!dataNode) return;
+    const raw = dataNode.textContent.trim();
     raw.split('\n').forEach(line => {
         const parts = line.split(',');
         if (parts.length < 2) return;
@@ -171,8 +188,7 @@ window.onload = () => {
             mastery[id] = { lv: 0, iv: 1 };
         }
     });
-    window.speechSynthesis.getVoices();
-};
+}
 
 function adjustValue(id, delta) {
     const el = document.getElementById(id);
@@ -183,7 +199,8 @@ function adjustValue(id, delta) {
 }
 
 function startTraining() {
-    sessionStart = new Date();
+    if (WORDS.length === 0) loadWords();
+    
     const startNum = parseInt(document.getElementById('rangeStart').value) || 1;
     const endNum = parseInt(document.getElementById('rangeEnd').value) || 1000;
     const testLimit = parseInt(document.getElementById('testLimit').value) || 100;
@@ -237,19 +254,19 @@ function nextWord() {
 
 function speakChain(en, ja) {
     window.speechSynthesis.cancel();
-    const rate = parseFloat(document.getElementById('speechRate').value) || 1.2;
+    const rateEn = parseFloat(document.getElementById('speechRateEn').value) || 1.2;
+    const rateJa = parseFloat(document.getElementById('speechRateJa').value) || 1.2;
     const voices = window.speechSynthesis.getVoices();
     
     const uttrEn = new SpeechSynthesisUtterance(en);
     uttrEn.lang = 'en-US';
-    uttrEn.rate = rate;
-    // 米国英語の優先選択
+    uttrEn.rate = rateEn;
     const enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
     if (enVoice) uttrEn.voice = enVoice;
 
     const uttrJa = new SpeechSynthesisUtterance(ja);
     uttrJa.lang = 'ja-JP';
-    uttrJa.rate = rate;
+    uttrJa.rate = rateJa;
 
     uttrEn.onend = () => {
         window.speechSynthesis.speak(uttrJa);
@@ -263,35 +280,51 @@ function speakChain(en, ja) {
 }
 
 function startStressTimer() {
+    const seconds = parseFloat(document.getElementById('limitSeconds').value) || 1.0;
     const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
     track.classList.add('active');
-    bar.style.transition = "width 1s linear";
+    bar.style.transition = `width ${seconds}s linear`;
     bar.style.width = "100%";
     
     limitTimer = setTimeout(() => {
-        processAnswer(false); // 1秒経過で自動不合格
-    }, 1000);
+        processAnswer(false); 
+    }, seconds * 1000);
 }
 
 function processAnswer(isOk) {
     clearTimeout(limitTimer);
     const m = mastery[activeWord.id];
-    if (isOk) { m.lv++; m.iv *= 2; } else { m.lv = 0; m.iv = 1; }
+    if (isOk) { 
+        m.lv++; 
+        m.iv *= 2; 
+    } else { 
+        m.lv = 0; 
+        m.iv = 1; 
+    }
     results.push({ ...activeWord, ok: isOk });
     nextWord();
 }
 
 function finishTraining() {
-    const sessionEnd = new Date();
     window.speechSynthesis.cancel();
     document.getElementById("app").classList.remove('active');
     document.getElementById("report").classList.add('active');
     
     const correct = results.filter(r => r.ok).length;
+    const wrongOnes = results.filter(r => !r.ok);
     const accuracy = ((correct / results.length) * 100 || 0).toFixed(1);
+    
     document.getElementById("resultScore").textContent = `${correct} / ${results.length} (${accuracy}%)`;
-    document.getElementById("numericalArea").value = Object.keys(mastery).map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`).join(',');
+    
+    // 間違えた単語のみ出力
+    document.getElementById("wrongWordsArea").value = wrongOnes.map(r => r.raw).join('\n');
+    
+    // 保存用数値データ（ID:Lv:Ivのみ）
+    document.getElementById("numericalArea").value = Object.keys(mastery)
+        .filter(id => mastery[id].lv > 0 || mastery[id].iv > 1)
+        .map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`)
+        .join(',');
 }
 
 document.onkeydown = (e) => {
@@ -301,9 +334,12 @@ document.onkeydown = (e) => {
     if (k === "a") processAnswer(false);
     if (e.code === "Space") { e.preventDefault(); finishTraining(); }
 };
+
+window.onload = loadWords;
 </script>
 
 <script type="text/plain" id="words-data">
+
 I talk.,私は話します(主語を見抜く)1
 He laughs.,彼は笑います(動詞を見抜く)2
 I drink coffee.,私はコーヒーを飲みます(目的語を見抜く)3
