@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
+    <title>英語例文暗唱 極限管理版V4.5</title>
+    <style>
+        :root {
+            --bg: #070b14;
+            --container: #111827;
+            --text: #f9fafb;
+            --primary: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --gray: #4b5563;
+            --accent: #7c3aed;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { 
+            margin: 0; width: 100%; height: 100%; background: var(--bg); 
+            font-family: 'Inter', 'Hiragino Kaku Gothic ProN', sans-serif; color: var(--text); 
+            overflow-x: hidden; touch-action: manipulation;
+        }
+        
+        #setup, #report { padding: 20px; height: 100vh; overflow-y: auto; display: none; }
+        #setup.active, #report.active { display: block; }
+        #app { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; padding: 20px; z-index: 100; }
+        #app.active { display: flex; }
+
+        .container { max-width: 600px; margin: 0 auto; background: var(--container); border-radius: 32px; padding: 24px; border: 1px solid #1f2937; }
+        h1 { font-size: 22px; text-align: center; margin-bottom: 20px; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
+        .label { font-size: 12px; font-weight: bold; color: var(--gray); margin: 15px 0 5px 4px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .input-group { background: #1f2937; padding: 10px; border-radius: 12px; border: 1px solid #374151; }
+        .input-group span { font-size: 10px; display: block; margin-bottom: 5px; color: #9ca3af; }
+        
+        .adj-container { display: flex; align-items: center; gap: 8px; }
+        .adj-btn { background: #374151; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .adj-btn:active { background: var(--primary); transform: scale(0.9); }
+
+        input { 
+            width: 100%; background: transparent; border: none; color: white; 
+            font-size: 18px; font-weight: bold; outline: none; text-align: center;
+        }
+
+        .range-box { background: #1e1b4b; padding: 15px; border-radius: 16px; border: 1px solid var(--accent); margin-bottom: 15px; }
+        textarea { width: 100%; height: 60px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 12px; padding: 10px; font-size: 11px; margin-top: 5px; outline: none; }
+
+        button.main-btn { width: 100%; height: 60px; border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        button.main-btn:active { transform: scale(0.98); }
+        
+        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 24px; }
+        #englishWord { font-size: 30px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; }
+        #japaneseWord { font-size: 18px; color: #94a3b8; font-weight: bold; line-height: 1.5; max-width: 95%; }
+        
+        .progress-container { width: 100%; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; margin: 10px 0; }
+        #progressBar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        
+        .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 20px; }
+        .ans-btn { height: 85px; border: none; border-radius: 28px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; }
+        #correctBtn { background: var(--success); }
+        #wrongBtn { background: var(--danger); }
+        
+        #timeResultDisplay { font-size: 12px; color: var(--gray); margin-bottom: 15px; line-height: 1.4; }
+        .copy-btn { width: 100%; padding: 12px; margin: 10px 0; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="setup" class="active">
+    <div class="container">
+        <h1>英語例文暗唱</h1>
+        
+        <div class="range-box">
+            <div class="label">修行範囲と問題数</div>
+            <div class="param-grid">
+                <div class="input-group">
+                    <span>開始ID</span>
+                    <div class="adj-container">
+                        <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', -100)">-100</button>
+                        <input type="number" id="rangeStart" value="1" pattern="\d*" inputmode="numeric">
+                        <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', 100)">+100</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <span>終了ID</span>
+                    <div class="adj-container">
+                        <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', -100)">-100</button>
+                        <input type="number" id="rangeEnd" value="1000" pattern="\d*" inputmode="numeric">
+                        <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', 100)">+100</button>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group" style="background: rgba(255,255,255,0.1);">
+                <span>修行単語数（今回解く数）</span>
+                <div class="adj-container">
+                    <button type="button" class="adj-btn" onclick="adjustValue('testLimit', -100)">-100</button>
+                    <input type="number" id="testLimit" value="50" pattern="\d*" inputmode="numeric">
+                    <button type="button" class="adj-btn" onclick="adjustValue('testLimit', 100)">+100</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="label">音声読み上げ速度</div>
+        <div class="input-group">
+            <input type="number" id="speechRate" value="1.0" step="0.1" inputmode="decimal">
+        </div>
+
+        <div class="label">前回の保存データを復元</div>
+        <textarea id="importArea" placeholder="管理数値（ID:Lv:Iv,...）をここに貼り付け"></textarea>
+
+        <button class="main-btn" onclick="startTraining()">暗唱修行開始</button>
+    </div>
+</div>
+
+<div id="app">
+    <div id="infoText" style="text-align:center; font-size:12px; color:var(--gray); margin-bottom:5px;"></div>
+    <div class="progress-container"><div id="progressBar"></div></div>
+    
+    <div id="card">
+        <div id="englishWord"></div>
+        <div id="japaneseWord"></div>
+    </div>
+
+    <div class="ans-btns">
+        <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
+        <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">正解 (Z)</button>
+    </div>
+    <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:12px; cursor:pointer;">中断する (Space)</button>
+</div>
+
+<div id="report">
+    <div class="container" style="text-align:center;">
+        <h1>修行結果</h1>
+        <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success);"></div>
+        <div id="timeResultDisplay"></div>
+        
+        <div class="label">復習用（苦手リスト）</div>
+        <textarea id="wrongWordsArea" style="height:100px;" readonly></textarea>
+        <button class="copy-btn" style="background:var(--accent);" onclick="copyText('wrongWordsArea')">リストをコピー</button>
+
+        <div class="label">保存用暗記データ</div>
+        <textarea id="numericalArea" style="height:80px;" readonly></textarea>
+        <button class="copy-btn" style="background:var(--primary);" onclick="copyText('numericalArea')">数値をコピー</button>
+
+        <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップへ戻る</button>
+    </div>
+</div>
+
+<script>
+const WORDS = [];
+const mastery = {};
+let queue = [];
+let results = [];
+let activeWord = null;
+let sessionStart = null;
+
+window.onload = () => {
+    const raw = document.getElementById('words-data').textContent.trim();
+    if (!raw) return;
+    raw.split('\n').forEach(line => {
+        const parts = line.split(',');
+        if (parts.length < 2) return;
+        const en = parts[0].trim();
+        const jaFull = parts[1].trim();
+        // 日本語訳(説明文)ID の構造を分解
+        const m = jaFull.match(/^(.*?)(\d+)$/);
+        if (m) {
+            const id = parseInt(m[2]);
+            const jaText = m[1];
+            WORDS.push({ id, en, ja: jaText, raw: line });
+            mastery[id] = { lv: 0, iv: 1 };
+        }
+    });
+    // 音声エンジンの準備
+    window.speechSynthesis.getVoices();
+};
+
+function adjustValue(id, delta) {
+    const el = document.getElementById(id);
+    let val = parseInt(el.value) || 0;
+    val += delta;
+    if (val < 1) val = 1;
+    el.value = val;
+}
+
+function startTraining() {
+    sessionStart = new Date();
+    const startNum = parseInt(document.getElementById('rangeStart').value) || 1;
+    const endNum = parseInt(document.getElementById('rangeEnd').value) || 1000;
+    const testLimit = parseInt(document.getElementById('testLimit').value) || 50;
+
+    const imp = document.getElementById('importArea').value.trim();
+    if (imp) {
+        imp.split(',').forEach(e => {
+            const pair = e.split(':');
+            if (pair.length >= 3) {
+                const id = Number(pair[0]);
+                if (mastery[id]) {
+                    mastery[id].lv = Number(pair[1]);
+                    mastery[id].iv = Number(pair[2]);
+                }
+            }
+        });
+    }
+
+    let available = WORDS.filter(w => w.id >= startNum && w.id <= endNum);
+    // ランダムに並び替え
+    available.sort(() => Math.random() - 0.5);
+    queue = available.slice(0, testLimit);
+
+    if (queue.length === 0) return alert("指定範囲にデータがありません。");
+
+    results = [];
+    document.getElementById("setup").classList.remove('active');
+    document.getElementById("app").classList.add('active');
+    nextWord();
+}
+
+function nextWord() {
+    if (queue.length === 0) return finishTraining();
+    activeWord = queue.shift();
+    
+    const currentIdx = results.length + 1;
+    const totalInQueue = results.length + queue.length + 1;
+    
+    document.getElementById("infoText").textContent = `ID: ${activeWord.id} | ${currentIdx} / ${totalInQueue}`;
+    document.getElementById("progressBar").style.width = `${(results.length / totalInQueue) * 100}%`;
+    
+    document.getElementById("englishWord").textContent = activeWord.en;
+    document.getElementById("japaneseWord").textContent = activeWord.ja;
+    
+    speak(activeWord.en);
+}
+
+function speak(text) {
+    window.speechSynthesis.cancel();
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = 'en-US';
+    uttr.rate = parseFloat(document.getElementById('speechRate').value) || 1.0;
+    window.speechSynthesis.speak(uttr);
+}
+
+function processAnswer(isOk) {
+    const m = mastery[activeWord.id];
+    if (isOk) { 
+        m.lv = Math.min(10, m.lv + 1); 
+        m.iv *= 2; 
+    } else { 
+        m.lv = 0; 
+        m.iv = 1; 
+    }
+    results.push({ ...activeWord, ok: isOk });
+    nextWord();
+}
+
+function finishTraining() {
+    const sessionEnd = new Date();
+    window.speechSynthesis.cancel();
+    document.getElementById("app").classList.remove('active');
+    document.getElementById("report").classList.add('active');
+    
+    const correctCount = results.filter(r => r.ok).length;
+    const accuracy = ((correctCount / results.length) * 100 || 0).toFixed(1);
+    const missed = results.filter(r => !r.ok);
+    
+    document.getElementById("resultScore").textContent = `${correctCount} / ${results.length} (${accuracy}%)`;
+    document.getElementById("timeResultDisplay").textContent = `修行時間: ${Math.floor((sessionEnd - sessionStart)/1000)}秒`;
+    
+    document.getElementById("wrongWordsArea").value = missed.map(m => m.raw).join('\n');
+    document.getElementById("numericalArea").value = Object.keys(mastery).map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`).join(',');
+}
+
+function copyText(id) {
+    const el = document.getElementById(id);
+    el.select();
+    document.execCommand('copy');
+    alert("クリップボードにコピーしました");
+}
+
+document.onkeydown = (e) => {
+    if (!document.getElementById("app").classList.contains('active')) return;
+    const key = e.key.toLowerCase();
+    if (key === "z") processAnswer(true);
+    if (key === "a") processAnswer(false);
+    if (e.code === "Space") { e.preventDefault(); finishTraining(); }
+};
+</script>
+
+<script type="text/plain" id="words-data">
+I talk.,私は話します(主語を見抜く)1
+He laughs.,彼は笑います(動詞を見抜く)2
+I drink coffee.,私はコーヒーを飲みます(目的語を見抜く)3
+She is my friend.,彼女は私の友達です(補語を見抜く)4
+They walk slowly.,彼らはゆっくり歩きます(修飾語を見抜く)5
+At the station.,駅で(句を見抜く)6
+After I arrived.,私が着いた後(節を見抜く)7
+Because of the rain.,雨のせいで(句と節を区別する)8
+Time flies.,光陰矢の如し(SVを見抜く)9
+I am tired.,私は疲れています(SVCを見抜く)10
+I like cats.,私は猫が好きです(SVOを見抜く)11
+He gave me a gift.,彼は私に贈り物をくれました(SVOOを見抜く)12
+You make me happy.,あなたは私を幸せにします(SVOCを見抜く)13
+He made a cake.,彼はケーキを作りました(文型で意味の違いを読む)14
+This is my bag.,これは私のカバンです(名詞を見抜く)15
+I play soccer.,私はサッカーをします(動詞を見抜く)16
+That is a nice car.,あれはいい車です(形容詞を見抜く)17
+She speaks well.,彼女は上手に話します(副詞を見抜く)18
+Under the table.,テーブルの下に(前置詞を見抜く)19
+Milk and sugar.,ミルクと砂糖(接続詞を見抜く)20
+That is mine.,あれは私のものです(代名詞を見抜く)21
+A sunny day.,晴れた日(冠詞を見抜く)22
+Each person.,各個人(限定詞を見抜く)23
+Hard work.,きつい仕事(同形異品詞を判定する)24
+Happiness is here.,幸せはここにあります(語尾で名詞を見抜く)25
+Beautiful music.,美しい音楽(語尾で形容詞を見抜く)26
+Actually.,実は(語尾で副詞を見抜く)27
+Enjoy the meal.,食事を楽しんで(語尾で動詞を見抜く)28
+Two apples.,二個のりんご(可算名詞を見抜く)29
+Some water.,いくらかの水(不可算名詞を見抜く)30
+A book.,一冊の本(単数名詞を見抜く)31
+Many books.,たくさんの本(複数名詞を見抜く)32
+Three cats.,三匹の猫(名詞の数一致を判断する)33
+Food is ready.,食事ができました(名詞の位置を判断する)34
+A small red box.,小さな赤い箱(名詞句の語順を判断する)35
+Love is blind.,愛は盲目です(抽象名詞を理解する)36
+Gold is heavy.,金は重いです(物質名詞を理解する)37
+London is far.,ロンドンは遠いです(固有名詞を理解する)38
+Bus stop.,バス停(複合名詞を理解する)39
+Feeling.,感情(動詞派生名詞を理解する)40
+Kindness.,親切さ(形容詞派生名詞を理解する)41
+A boy and an orange.,一人の少年と一個のオレンジ(a と an を使い分ける)42
+The moon.,月(the を使う)43
+Go home.,家に帰る(無冠詞を使う)44
+I saw a bird.,鳥を見ました(初出の名詞を見抜く)45
+The bird was blue.,その鳥は青かったです(既出の名詞を見抜く)46
+The sun.,太陽(特定の名詞を見抜く)47
+Give me a cup.,カップを一つください(不特定の名詞を見抜く)48
+A tree.,一本の木(冠詞と可算名詞を組み合わせる)49
+The joy of life.,人生の喜び(抽象名詞に冠詞を付ける)50
+The water in the bottle.,ボトルの中の水(物質名詞に冠詞を付ける)51
+The United States.,アメリカ合衆国(固有名詞に冠詞を付ける)52
+Some coffee.,いくらかのコーヒー(some を使う)53
+Any ideas?,何か考えはありますか(any を使う)54
+No money.,お金がない(no を使う)55
+Each student.,それぞれの生徒(each を使う)56
+Every day.,毎日(every を使う)57
+All people.,すべての人々(all を使う)58
+The whole story.,話の全体(whole を使う)59
+Both eyes.,両目(both を使う)60
+Either way.,どちらの道でも(either を使う)61
+Neither answer.,どちらの答えも違う(neither を使う)62
+Another cup.,もう一杯のカップ(another を使う)63
+Other friends.,他の友達(other を使う)64
+The other side.,反対側(the other を使う)65
+Help others.,他人を助ける(others を使う)66
+Where are the others?,他の人たちはどこですか(the others を使う)67
+Many people and much noise.,多くの人と多くの騒音(many と much を使い分ける)68
+Few people.,ほとんど人がいない(few と a few を使い分ける)69
+A little milk.,少しの牛乳(little と a little を使い分ける)70
+Several times.,数回(several を使う)71
+Various types.,さまざまな種類(various を使う)72
+Most people.,ほとんどの人々(most と almost を使い分ける)73
+Plenty of food.,たっぷりの食べ物(plenty of を使う)74
+A lot of rain.,たくさんの雨(a lot of を使う)75
+A number of problems.,いくつかの問題(a number of を使う)76
+The number of guests.,客の数(the number of を使う)77
+A large amount of time.,多大な時間(a large amount of を使う)78
+A great deal of work.,多大な仕事(a great deal of を使う)79
+A variety of colors.,さまざまな色(a variety of を使う)80
+I know her.,私は彼女を知っています(主格を使う)81
+She knows me.,彼女は私を知っています(目的格を使う)82
+This is my bag.,これは私のカバンです(所有格を使う)83
+That is hers.,あれは彼女のものです(所有代名詞を使う)84
+I did it myself.,自分でやりました(再帰代名詞を使う)85
+This is a secret.,これは秘密です(指示代名詞を使う)86
+Somebody is calling.,誰かが呼んでいます(不定代名詞を使う)87
+I lost my pen and need one.,ペンをなくしたので一本必要です(one を代名詞で使う)88
+I like the blue ones.,青いものが好きです(ones を代名詞で使う)89
+It is cold.,寒いです(it を仮主語で使う)90
+I found it easy to talk.,話すのは簡単だとわかりました(it を仮目的語で使う)91
+It is cloudy.,曇っています(it を天候で使う)92
+It is nine.,9時です(it を時間で使う)93
+It is near.,近いです(it を距離で使う)94
+I saw the cat and fed it.,猫を見て餌をあげました(代名詞の参照先を特定する)95
+This is my idea.,これが私の考えです(this の指す範囲を読む)96
+That is true.,それは本当です(that の指す範囲を読む)97
+These are my keys.,これらは私の鍵です(these の指す範囲を読む)98
+Those were the days.,あの頃はよかったです(those の指す範囲を読む)99
+The population of Tokyo is larger than that of Osaka.,東京の人口は大阪の人口より多いです(that で名詞を代用する)100
+The ears of a rabbit are longer than those of a cat.,ウサギの耳はネコの耳よりも長いです(those で名詞を代用する)101
+I lost my watch and bought a new one.,私は時計をなくしたので新しいものを買いました(one と that を使い分ける)102
+These flowers are better than those.,これらの花はあれらよりも良いです(ones と those を使い分ける)103
+Mary liked the cake so she ate it.,メアリーはそのケーキが気に入ったのでそれを食べました(冗長な名詞を省いて代名詞に置き換える)104
+A small house.,小さな家(形容詞を名詞の前に置く)105
+He is tall.,彼は背が高いです(形容詞を補語にする)106
+An old man.,一人の老人(限定用法を使う)107
+The man is old.,その男は年老いています(叙述用法を使う)108
+A beautiful large round table.,美しくて大きな丸いテーブル(形容詞の語順を並べる)109
+Many people.,多くの人々(数量形容詞を使う)110
+An exciting game.,わくわくする試合(-ing 形容詞を使う)111
+An excited crowd.,興奮した群衆(-ed 形容詞を使う)112
+It is boring.,それは退屈です(感情形容詞を使い分ける)113
+The fish is alive.,その魚は生きています(alive など後置形容詞を使う)114
+A bag full of books.,本でいっぱいのカバン(形容詞句で名詞を後ろから修飾する)115
+He runs fast.,彼は速く走ります(副詞で動詞を修飾する)116
+Very beautiful.,とても美しい(副詞で形容詞を修飾する)117
+Very slowly.,とてもゆっくり(副詞で副詞を修飾する)118
+Luckily I passed.,運良く合格しました(文副詞を使う)119
+He often goes there.,彼はよくそこへ行きます(副詞の位置を判断する)120
+I always eat breakfast.,私はいつも朝食を食べます(頻度副詞を一般動詞の前に置く)121
+She is usually late.,彼女はたいてい遅れます(頻度副詞をbe動詞の後に置く)122
+Only I know.,私だけが知っています(only のかかり先を判断する)123
+Even a child can do it.,子供でさえそれができます(even のかかり先を判断する)124
+I almost fell.,私は危うく転ぶところでした(almost のかかり先を判断する)125
+Nearly ten people.,10人近い人々(nearly のかかり先を判断する)126
+I have already finished.,私はすでに終えました(already を使う)127
+Not yet.,まだです(yet を使う)128
+I am still hungry.,私はまだお腹が空いています(still を使う)129
+He works hard.,彼は一生懸命働きます(hard と hardly を使い分ける)130
+I saw him lately.,私は最近彼に会いました(late と lately を使い分ける)131
+Nearly finished.,ほぼ終わりました(near と nearly を使い分ける)132
+Highly recommended.,強く推奨されます(high と highly を使い分ける)133
+Good enough.,十分良い(enough を副詞で使う)134
+Too hot.,暑すぎます(too を副詞で使う)135
+Very cold.,とても寒いです(very を副詞で使う)136
+So fast.,とても速く(so を副詞で使う)137
+A girl in the park.,公園にいる少女(修飾語のかかり先を特定する)138
+A sleeping baby.,眠っている赤ちゃん(前置飾を読む)139
+The boy running there.,あそこを走っている少年(後置修飾を読む)140
+The book on the desk which I bought.,私が買った机の上の本(遠距離修飾を読む)141
+The man sitting by the door.,ドアのそばに座っている男(分詞句の修飾範囲を読む)142
+The car that he likes.,彼が好きな車(関係詞節の修飾範囲を読む)143
+The news that he won.,彼が勝ったという知らせ(同格句の修飾範囲を読む)144
+Information.,情報(接尾辞で名詞を作る)145
+Useful.,役に立つ(接尾辞で形容詞を作る)146
+Quickly.,素早く(接尾辞で副詞を作る)147
+Modernize.,近代化する(接尾辞で動詞を作る)148
+Unhappy.,不幸な(接頭辞で否定を表す)149
+Rewrite.,書き直す(接頭辞で反復を表す)150
+Disconnect.,切断する(接頭辞で逆転を表す)151
+Invisible.,目に見えない(同語根で意味を推測する)152
+I am a student.,私は学生です(be動詞を使う)153
+I play tennis.,私はテニスをします(一般動詞を使う)154
+She is a teacher and she teaches English.,彼女は教師で英語を教えています(be動詞と一般動詞を区別する)155
+Do you like tea?,お茶は好きですか(do を疑問文で使う)156
+I do not know.,私は知りません(do を否定文で使う)157
+I do love you.,本当にあなたを愛しています(do を強調で使う)158
+The sun rises.,太陽が昇ります(自動詞を使う)159
+I read books.,私は本を読みます(他動詞を使う)160
+I want an apple.,私はりんごが欲しいです(目的語が必要な動詞を見抜く)161
+Listen to me.,私の言うことを聞きなさい(前置詞が必要な動詞を見抜く)162
+He ran a shop.,彼は店を経営していました(自他で意味が変わる動詞を区別する)163
+He found the book.,彼はその本を見つけました(文型で意味が変わる動詞を区別する)164
+I know his name.,私は彼の名前を知っています(目的語が名詞か節かを判断する)165
+He helped me.,彼は私を助けました(人を目的語に取る動詞を使う)166
+I bought a pen.,私はペンを買いました(物を目的語に取る動詞を使う)167
+I told him the news.,私は彼にそのニュースを伝えました(二重目的語を使う)168
+He gave a book to me.,彼は私に本をくれました(第3文型と第4文型を書き換える)169
+Put on your coat.,コートを着なさい(句動詞を使う)170
+Look at the sky.,空を見なさい(動詞 + 前置詞の語法を使う)171
+Take off your shoes.,靴を脱ぎなさい(動詞 + 副詞の語法を使う)172
+Take care of him.,彼の世話をしなさい(動詞 + 名詞 + 前置詞の語法を使う)173
+He allowed me to go.,彼は私が家に行くのを許しました(allow 人 to V を使う)174
+Permits us to enter.,私たちの入場を許可します(permit 人 to V を使う)175
+I asked him to help.,私は彼に助けてくれるよう頼みました(ask 人 to V を使う)176
+She told me to wait.,彼女は私に待つように言いました(tell 人 to V を使う)177
+I want you to stay.,あなたにいてほしいです(want 人 to V を使う)178
+I expect him to win.,彼が勝つことを期待しています(expect 人 to V を使う)179
+He advised me to rest.,彼は私に休むよう助言しました(advise 人 to V を使う)180
+They forced him to sign.,彼らは彼に署名を強いました(force 人 to V を使う)181
+This tool enables us to work.,この道具のおかげで私たちは働けます(enable 人 to V を使う)182
+Remind me to call him.,彼に電話するのを忘れないよう言ってください(remind 人 to V で念押しする)183
+I persuaded him to come.,私は彼に来るよう説得しました(persuade 人 to V を使う)184
+She encouraged me to try.,彼女は私にやってみるよう励ましました(encourage 人 to V を使う)185
+He suggested going there.,彼はそこへ行くことを提案しました(suggest doing を使う)186
+I recommend visiting Kyoto.,京都を訪れることをお勧めします(recommend doing を使う)187
+We consider him a genius.,私たちは彼を天才だと考えています(consider O C を使う)188
+I regard him as a friend.,私は彼を友人だと思っています(regard A as B を使う)189
+They view it as a problem.,彼らはそれを問題だと見ています(view A as B を使う)190
+Keep the door open.,ドアを開けたままにしておきなさい(keep O C を使う)191
+It makes me happy.,それは私を幸せにします(make O C を使う)192
+I found the book easy.,その本は簡単だとわかりました(find O C を使う)193
+They call him Ken.,彼らは彼をケンと呼びます(call O C を使う)194
+They named the dog Pochi.,彼らはその犬をポチと名付けました(name O C を使う)195
+We appointed him leader.,私たちは彼をリーダーに任命しました(appoint O C を使う)196
+I think him honest.,彼は正直だと思います(think O C を使う)197
+I believe him to be innocent.,彼は無実だと信じています(believe O to be C を使う)198
+The sun rises.,太陽が昇ります(raise と rise を使い分ける)199
+Lie down on the bed.,ベッドに横になりなさい(lie と lay を使い分ける)200
+Can I borrow your pen?,ペンを借りてもいいですか(borrow と lend を使い分ける)201
+I will take you home.,家まで送っていきます(bring と take を使い分ける)202
+I am coming now.,今行きます(come と go を使い分ける)203
+Tell me the truth.,本当のことを話して(say と tell を使い分ける)204
+Let's talk about it.,それについて話そう(speak と talk を使い分ける)205
+I made a mistake.,間違えました(make と do を使い分ける)206
+I listen to music.,音楽を聴きます(hear と listen to を使い分ける)207
+Look at that bird.,あの鳥を見て(look と look at を使い分ける)208
+I arrived at the station.,駅に着きました(arrive in と arrive at を使い分ける)209
+Please answer me.,私に答えてください(answer と reply to を使い分ける)210
+He runs every morning.,彼は毎朝走ります(主語と動詞を一致させる)211
+The dog barks at night.,その犬は夜に吠えます(単数主語に単数動詞を合わせる)212
+Dogs bark at night.,犬は夜に吠えます(複数主語に複数動詞を合わせる)213
+Ken and Mary are friends.,ケンとメアリーは友達です(and で結ばれた主語を複数扱いする)214
+Either he or I am wrong.,彼か私のどちらかが間違っています(either A or B の一致を判断する)215
+Neither he nor she is here.,彼も彼女もここにいません(neither A nor B の一致を判断する)216
+Each child has a toy.,それぞれの子が玩具を持っています(each を含む主語を単数扱いする)217
+Every student is happy.,すべての生徒が幸せです(every を含む主語を単数扱いする)218
+Water is essential.,水は不可欠です(不可算名詞を単数扱いする)219
+Most of the money is gone.,お金の大部分がなくなりました(数量表現主語の一致を判断する)220
+The man who lives here is kind.,ここに住んでいる男の人は親切です(関係詞節にはさまれた主語を見抜く)221
+The key to the rooms is missing.,部屋の鍵がなくなっています(長い主語の中心語を見抜く)222
+Here comes the bus.,バスが来ました(倒置文の主語を見抜く)223
+He as well as I is tired.,私だけでなく彼も疲れています(as well as を含む主語の一致を判断する)224
+The teacher together with the students is here.,生徒たちと一緒に先生もここにいます(together with を含む主語の一致を判断する)225
+Along with the rain came the wind.,雨と共に風が来ました(along with を含む主語の一致を判断する)226
+More than one person was there.,そこには一人以上の人がいました(more than one を単数扱いする)227
+Many a man has failed.,多くの人が失敗してきました(many a を単数扱いする)228
+One of the students is tall.,生徒の一人は背が高いです(one of 複数名詞 を読む)229
+The only one of the boys who is tall.,背が高い唯一の少年(the only one of 複数名詞 を読む)230
+I play tennis every day.,私は毎日テニスをします(現在形を使う)231
+I am playing tennis now.,私は今テニスをしています(現在進行形を使う)232
+I played tennis yesterday.,私は昨日テニスをしました(過去形を使う)233
+I was playing tennis then.,私はその時テニスをしていました(過去進行形を使う)234
+I will go there tomorrow.,明日そこへ行きます(will で未来を表す)235
+I am going to go there.,そこへ行く予定です(be going to で未来を表す)236
+The train leaves at ten.,列車は10時に出発します(現在形で未来を表す)237
+I am meeting him tonight.,今夜彼に会うことになっています(現在進行形で未来を表す)238
+I saw him yesterday.,昨日彼に会いました(時を表す副詞に合わせて時制を選ぶ)239
+He lived here for years.,彼はここに何年も住んでいました(文脈に合わせて時制を選ぶ)240
+I have finished my work.,仕事を終えました(現在完了を使う)241
+I have lived here for ten years.,ここに10年住んでいます(現在完了の継続を使う)242
+I have seen that movie.,その映画を見たことがあります(現在完了の経験を使う)243
+I have just arrived.,ちょうど着いたところです(現在完了の完了を使う)244
+I have lost my key.,鍵をなくしてしまいました(現在完了の結果を使う)245
+I had finished it when he came.,彼が来た時すでに終えていました(過去完了を使う)246
+I will have finished it by noon.,昼までには終えているでしょう(未来完了を使う)247
+I have been waiting for an hour.,一時間ずっと待っています(現在完了進行形を使う)248
+I had been waiting for an hour then.,その時まで一時間ずっと待っていました(過去完了進行形を使う)249
+I will have been waiting for an hour by then.,その時までには一時間待っていることになります(未来完了進行形を使う)250
+I have lived here since 2020.,2020年からここに住んでいます(for と since を使い分ける)251
+I have already eaten.,もう食べました(already と yet を完了形で使い分ける)252
+Have you ever been there?,そこへ行ったことがありますか(ever と never を完了形で使い分ける)253
+Wait until he arrives.,彼が着くまで待ちなさい(before と by と until を完了形で使い分ける)254
+He has been sick.,彼は体調を崩しています(完了形を現在とのつながりで読む)255
+I can swim.,私は泳げます(can と could を使い分ける)256
+It may rain.,雨が降るかもしれません(may と might を使い分ける)257
+You must go.,行かなければなりません(must を使う)258
+You should study.,勉強すべきです(should を使う)259
+I would go if I were you.,私なら行くでしょう(will と would を使い分ける)260
+Shall we dance?,踊りませんか(shall を使う)261
+You ought to go.,行くべきです(ought to を使う)262
+You had better go.,行ったほうがいいよ(had better を使う)263
+I used to smoke.,以前はタバコを吸っていました(used to を使う)264
+I am able to swim.,泳ぐことができます(be able to を使う)265
+I have to go.,行かなければなりません(have to を使う)266
+You must not go.,行ってはいけません(must not と do not have to を使い分ける)267
+I would like to go.,行きたいです(would like を使う)268
+I would prefer to stay.,むしろここにいたいです(would prefer を使う)269
+He must have been tired.,彼は疲れていたに違いありません(must have done を使う)270
+It may have rained.,雨が降ったかもしれません(may have done を使う)271
+He might have lost it.,彼はそれをなくしたかもしれません(might have done を使う)272
+You should have done it.,あなたはそれをすべきでした(should have done を使う)273
+He could have won.,彼は勝てたかもしれません(could have done を使う)274
+It cannot have been true.,それが本当だったはずがありません(cannot have done を使う)275
+You need not have come.,来る必要はなかったのに(need not have done を使う)276
+He would often sit here.,彼はよくここに座ったものでした(would の習慣を読む)277
+He will often talk for hours.,彼はよく何時間も話します(will の習慣を読む)278
+Shall I help you?,手伝いましょうか(shall の提案を読む)279
+You need not go.,行く必要はありません(need の助動詞用法を使う)280
+How dare you say that!,よくもそんなことが言えますね(dare の助動詞用法を使う)281
+This house was built in 1990.,この家は1990年に建てられました(受動態を作る)282
+The door is opened every day.,ドアは毎日開けられます(現在受動態を作る)283
+The bridge was closed.,橋は閉鎖されました(過去受動態を作る)284
+The work will be done.,仕事はなされるでしょう(未来受動態を作る)285
+The room has been cleaned.,部屋は掃除されました(完了形の受動態を作る)286
+This can be done.,これは可能です(助動詞つき受動態を作る)287
+The house is being painted.,家はペンキを塗られているところです(進行形の受動態を作る)288
+He was laughed at by everyone.,彼はみんなに笑われました(群動詞の受動態を作る)289
+I was surprised at the news.,そのニュースに驚きました(by 以外の前置詞を伴う受動表現を使う)290
+He is known to everyone.,彼はみんなに知られています(能動態か受動態かを判断する)291
+The mountain is covered with snow.,山は雪で覆われています(状態受動を読む)292
+To see is to believe.,百聞は一見にしかず(to不定詞を名詞として使う)293
+I have something to do.,することがあります(to不定詞を形容詞として使う)294
+He came here to see me.,彼は私に会うためにここに来ました(to不定詞を副詞として使う)295
+To tell a lie is wrong.,嘘をつくのは悪いことです(to不定詞を主語にする)296
+It is easy to read this book.,この本を読むのは簡単です(it を使って不定詞主語を後ろに置く)297
+I want to go home.,家に帰りたいです(to不定詞を目的語にする)298
+My dream is to be a doctor.,私の夢は医者になることです(to不定詞を補語にする)299
+It is easy for him to swim.,彼が泳ぐのは簡単です(for 人 to V を使う)300
+It was kind of you to help me.,助けてくれてありがとう(of 人 to V を使う)301
+He seems to have been sick.,彼は病気だったようです(不定詞の時制を使い分ける)302
+He wants to be loved.,彼は愛されたがっています(不定詞の受動態を使う)303
+I saw him enter the room.,彼が部屋に入るのを見ました(原形不定詞を使う)304
+He is too tired to walk.,彼は疲れすぎて歩けません(too ... to を使う)305
+He is old enough to drive.,彼は運転できる年齢です(enough to を使う)306
+He got up early so as to be in time.,間に合うように早く起きました(so as to を使う)307
+I studied hard in order to pass.,合格するために一生懸命勉強しました(in order to を使う)308
+I worked hard so that I could win.,勝てるように一生懸命働きました(so that と不定詞を使い分ける)309
+He woke up only to find himself alone.,目覚めると自分一人だと気づいただけでした(only to V を使う)310
+We are to meet at five.,5時に会うことになっています(be to V で予定を表す)311
+You are to follow the rules.,規則に従わなければなりません(be to V で義務を表す)312
+Not a sound was to be heard.,音一つ聞こえませんでした(be to V で可能を表す)313
+He was never to return home.,彼は二度と家に帰らない運命でした(be to V で運命を表す)314
+I don't know what to do.,何をすべきかわかりません(疑問詞 + to V を使う)315
+To tell the truth, I am tired.,実を言うと、疲れています(独立不定詞を使う)316
+To really understand.,本当に理解するために(分離不定詞を使う)317
+It is too heavy for me to carry.,重すぎて私には運べません(too ... for A to do を使う)318
+This is easy enough for him to do.,これは彼がやるには十分簡単です(enough for A to do を使う)319
+He was the first to arrive.,彼は最初に到着しました(the first to do を使う)320
+He is the last man to tell a lie.,彼は決して嘘をつくような人ではありません(the last to do を使う)321
+The plane is about to take off.,飛行機はまさに離陸しようとしています(be about to do を使う)322
+The bus is due to arrive.,バスは到着する予定です(be due to do を使う)323
+This is meant to be a secret.,これは秘密にされることになっています(be meant to do を使う)324
+I came to like it.,それが好きになりました(come to do を使う)325
+He failed to come.,彼は来ませんでした(fail to do を使う)326
+I cannot but laugh.,笑わずにはいられません(cannot but do を使う)327
+I cannot help but cry.,泣かずにはいられません(cannot help but do を使う)328
+He does nothing but cry.,彼は泣いてばかりいます(do nothing but do を使う)329
+You have only to wait.,待つだけでいいです(have only to do を使う)330
+Walking is good exercise.,歩くことは良い運動です(動名詞を主語にする)331
+I like swimming.,泳ぐのが好きです(動名詞を目的語にする)332
+I am fond of reading.,読書が好きです(前置詞の後ろに動名詞を置く)333
+I finished eating.,食べ終えました(動名詞しか取らない動詞を使う)334
+I decided to go.,行くことに決めました(不定詞しか取らない動詞を使う)335
+Remember to lock the door.,忘れずに鍵をかけてね(remember to do と doing を区別する)336
+I forgot meeting her.,彼女に会ったことを忘れました(forget to do と doing を区別する)337
+I regret saying that.,あんなことを言ったのを後悔しています(regret to do と doing を区別する)338
+He stopped to smoke.,彼はタバコを吸うために立ち止まりました(stop to do と doing を区別する)339
+I tried to open the door.,ドアを開けようとしました(try to do と doing を区別する)340
+I mean to go.,行くつもりです(mean to do と doing を区別する)341
+He went on to speak.,彼は続けて話し始めました(go on to do と doing を区別する)342
+I don't mind staying here.,ここにいても構いません(complete gerund を使う)343
+He is proud of being loved.,彼は愛されていることを誇りに思っています(受動態の動名詞を使う)344
+I don't like his coming here.,彼がここに来るのが好きではありません(所有格 + 動名詞 を使う)345
+The boy running over there.,あそこを走っている少年(現在分詞を使う)346
+The broken window.,壊れた窓(過去分詞を使う)347
+A barking dog.,吠えている犬(分詞で名詞を前から修飾する)348
+The lady standing there.,あそこに立っている女性(分詞で名詞を後ろから修飾する)349
+He kept me waiting.,彼は私を待たせました(分詞を補語として使う)350
+Running is fun.,走ることは楽しいです(分詞と動名詞を区別する)351
+The house built ten years ago.,10年前に建てられた家(分詞の修飾範囲を判断する)352
+Looking at him, she smiled.,彼を見て彼女は微笑みました(分詞のかかり先を判断する)353
+The news was surprising.,そのニュースは驚くべきものでした(感情を表す分詞を使い分ける)354
+Don't leave the water running.,水を出しっぱなしにしないでください(leave O doing を使う)355
+I caught him stealing.,彼が盗んでいるところを見つけました(catch O doing を使う)356
+I heard him cry.,彼が叫ぶのを聞きました(hear O do を使う)357
+I heard him crying.,彼が叫んでいるのを聞きました(hear O doing を使う)358
+I saw her cross the street.,彼女が通りを渡るのを見ました(see O do を使う)359
+I saw her crossing the street.,彼女が通りを渡っているのを見ました(see O doing を使う)360
+I had him fix my car.,彼に車を修理してもらいました(have O do を使う)361
+I got him to help me.,彼に手伝ってもらいました(get O to do を使う)362
+I made myself understood in English.,英語で意思疎通ができました(make oneself understood を使う)363
+Feeling sick, I stayed home.,気分が悪かったので家にいました(分詞構文で理由を表す)364
+Walking along the street, I met him.,通りを歩いているとき彼に会いました(分詞構文で時を表す)365
+Turning to the right, you will find it.,右に曲がればそれが見つかります(分詞構文で条件を表す)366
+Admitting what you say, I still think so.,あなたの言うことは認めますがそれでもそう思います(分詞構文で譲歩を表す)367
+He sat reading a book.,彼は本を読みながら座っていました(分詞構文で付帯状況を表す)368
+Having finished the work, I went out.,仕事を終えたので外出しました(完了分詞構文を使う)369
+Seen from a distance, it looks like a ball.,遠くから見るとそれはボールのように見えます(受動分詞構文を使う)370
+It being fine, we went out.,晴れていたので私たちは外出しました(独立分詞構文を使う)371
+He was sleeping with his mouth open.,彼は口を開けて寝ていました(with + O + C を使う)372
+Judging from his look, he is angry.,彼の顔つきから判断すると怒っています(judging from を使う)373
+Generally speaking, women live longer.,一般的に言って女性のほうが長生きします(generally speaking を使う)374
+Strictly speaking, he is wrong.,厳密に言えば彼は間違っています(strictly speaking を使う)375
+Considering his age, he is very strong.,年齢を考えれば彼はとても強いです(considering を前置詞的に使う)376
+Given the chance, I will go.,機会があれば行きます(given を前置詞的に使う)377
+He sang and danced.,彼は歌って踊りました(接続詞で等位接続する)378
+I like coffee and tea.,コーヒーと紅茶が好きです(and を使う)379
+I am tired but happy.,疲れていますが幸せです(but を使う)380
+Tea or coffee?,紅茶かコーヒーはいかが(or を使う)381
+It was raining, so I stayed home.,雨だったので家にいました(so を使う)382
+I stayed home, for it was raining.,雨だったので家にいました(for を使う)383
+I stayed home because it rained.,雨が降ったので家にいました(because を使う)384
+Since he is rich, he can buy it.,彼はお金持ちなので買えます(since を理由で使う)385
+As it was late, we left.,遅かったので出発しました(as を理由で使う)386
+Although he is old, he is strong.,彼は年老いていますが強いです(although を使う)387
+Though it was cold, we went out.,寒かったけれど外出しました(though を使う)388
+Even though I am busy, I will help.,忙しいけれど手伝います(even though を使う)389
+If it rains, I will stay home.,雨が降れば家にいます(if を使う)390
+Unless you hurry, you will be late.,急がないと遅れますよ(unless を使う)391
+When he comes, I will leave.,彼が来たら出発します(when を使う)392
+While I was sleeping, he came.,私が寝ている間に彼が来ました(while を使う)393
+Wash your hands before you eat.,食べる前に手を洗いなさい(before を使う)394
+After he left, she arrived.,彼が去った後で彼女が着きました(after を使う)395
+Wait until he returns.,彼が戻るまで待ちなさい(until を使う)400
+Once you start, you must finish.,一度始めたら終えなければなりません(once を使う)397
+As soon as he arrived, he called me.,彼は着くとすぐに電話をくれました(as soon as を使う)398
+You can stay as long as you like.,好きなだけいていいですよ(as long as を使う)399
+So long as you are happy.,あなたが幸せである限り(so long as を使う)400
+Provided that he comes.,彼が来るという条件で(provided that を使う)401
+Providing that the weather is fine.,天気が良ければ(providing that を使う)402
+Supposing that it is true.,それが本当だとしたら(supposing that を使う)403
+Seeing that he is young.,彼が若いことを考えれば(seeing that を使う)404
+Now that you are here.,君がここにいるからには(now that を使う)405
+In case it rains.,雨が降る場合に備えて(in case S V を使う)406
+Lest you should forget.,忘れないように(lest を使う)407
+For fear that he should fail.,失敗しないように(for fear that を使う)408
+I know that he is honest.,彼が正直だということを知っています(that節を使う)409
+That he is honest is true.,彼が正直だということは本当です(that節を主語にする)410
+I believe that he is right.,彼は正しいと信じています(that節を目的語にする)411
+The problem is that he is lazy.,問題は彼が怠慢だということです(that節を補語にする)412
+I think he is right.,彼は正しいと思います(that節の that を省略する)413
+I don't know whether he will come.,彼が来るかどうか分かりません(whether節を使う)414
+I wonder if he is at home.,彼は家にいるかしら(if節を名詞節で使う)415
+I don't know whether he likes it.,彼がそれが好きかどうか知りません(whether と if を使い分ける)416
+Whether it is true or not.,本当かどうかにかかわらず(whether ... or not を使う)417
+I don't know whether to go.,行くべきかどうか分かりません(whether to do を使う)418
+I know where he lives.,彼がどこに住んでいるか知っています(疑問詞節を使う)419
+I know what he wants.,彼が何を欲しがっているか知っています(what節を使う)420
+I know who did it.,誰がやったか知っています(who節を使う)421
+Tell me where you went.,どこへ行ったか教えて(where節を使う)422
+I remember when I saw him.,いつ彼に会ったか覚えています(when節を使う)423
+I don't know why he is late.,なぜ彼が遅れているのか分かりません(why節を使う)424
+This is how I did it.,こうやって私はそれをしました(how節を使う)425
+The boy who is tall.,背の高い少年(関係代名詞 who を使う)426
+The book which is on the table.,テーブルの上にある本(関係代名詞 which を使う)427
+The man that I met.,私が会った男(関係代名詞 that を使う)428
+The boy whose hair is black.,髪が黒い少年(関係代名詞 whose を使う)429
+The man whom I saw.,私が見た男(関係代名詞 whom を使う)430
+The girl who lives here.,ここに住んでいる少女(主格の関係代名詞を見抜く)431
+The book which I bought.,私が買った本(目的格の関係代名詞を見抜く)432
+The girl whose father is a doctor.,お父さんが医者の少女(所有格の関係代名詞を見抜く)433
+The man I saw.,私が見た男(目的格関係詞を省略する)434
+The house where he lives.,彼が住んでいる家(人と物で関係詞を使い分ける)435
+The house in which he lives.,彼が住んでいる家(前置詞 + 関係代名詞を使う)436
+What he said is true.,彼の言ったことは本当です(what を関係代名詞で使う)437
+My brother, who lives in Tokyo.,東京に住んでいる私の兄(非制限用法を使う)438
+He said he was sick, which was a lie.,彼は病気だと言ったが嘘だった(継続用法の which を使う)439
+The place where we met.,私たちが会った場所(関係副詞 where を使う)440
+The day when we met.,私たちが会った日(関係副詞 when を使う)441
+The reason why I came.,私が来た理由(関係副詞 why を使う)442
+That is how he escaped.,そのようにして彼は逃げました(関係副詞 how を使う)443
+The house where he lived.,彼が住んでいた家(関係副詞と関係代名詞を書き換える)444
+The way he talks.,彼の話し方(how と the way を使い分ける)445
+Whoever comes is welcome.,来る人は誰でも歓迎です(whoever を使う)446
+Whatever happens.,何が起ころうとも(whatever を使う)447
+Choose whichever you like.,好きな方をどれでも選びなさい(whichever を使う)448
+Whenever he comes.,彼が来るときはいつでも(whenever を使う)449
+Wherever you go.,どこへ行こうとも(wherever を使う)450
+However hard he tries.,どんなに頑張っても(however を使う)451
+Give it to whoever wants it.,欲しい人には誰にでもあげなさい(whoever の名詞節用法を読む)452
+Do whatever you like.,好きなことを何でもしなさい(whatever の名詞節用法を読む)453
+However tired she is.,彼女がどんなに疲れていても(however の譲歩用法を読む)454
+Whatever you do.,何をしても(whatever の譲歩用法を読む)455
+Do what you like.,好きなことをしなさい(what の free relative を読む)456
+I think he is right.,彼は正しいと思います(主節と従属節を見分ける)457
+The man who I thought was honest.,私が正直だと思っていた男(節の入れ子構造を読む)458
+The fact that he is honest.,彼が正直だという事実(名詞 + that節の同格を使う)459
+The news that he won.,彼が勝ったという知らせ(同格と関係詞を区別する)460
+It was Ken that I saw.,私が見たのはケンでした(It is ... that の強調構文を使う)461
+What he needs is rest.,彼に必要なのは休息です(What S V is ... を使う)462
+Never have I seen such a thing.,そんなものは一度も見事がない(倒置を使う)463
+He is not a doctor.,彼は医者ではありません(not のかかり先を判断する)464
+Not all of them came.,彼ら全員が来たわけではありません(部分否定を理解する)465
+None of them came.,誰も来ませんでした(全体否定を理解する)466
+It is not impossible.,不可能ではありません(二重否定を理解する)467
+Rich people are not always happy.,金持ちが必ずしも幸せとは限りません(not always を読む)468
+This is not necessarily true.,これが必ずしも正しいとは限りません(not necessarily を読む)469
+I don't entirely agree.,全面的に同意するわけではありません(not entirely を読む)470
+He is as tall as I.,彼は私と同じくらいの背丈です(as ... as を使う)471
+He is not as tall as I.,彼は私ほど背が高くありません(not as ... as を使う)472
+He is taller than I.,彼は私より背が高いです(比較級を使う)473
+He is the tallest of all.,彼は全員の中で一番背が高いです(最上級を使う)474
+He is better than me.,彼は私より上手です(不規則比較を使う)475
+He is much taller than I.,彼は私よりずっと背が高いです(much / far / even + 比較級を使う)476
+He is one of the richest men.,彼は最も裕福な男の一人です(one of the 最上級を使う)477
+He is taller than any other boy.,彼は他のどの少年よりも背が高いです(than any other を使う)478
+No other boy is as tall as he.,彼ほど背の高い少年は他にいません(no other ... as ... as を使う)479
+The more you have, the more you want.,持てば持つほど欲しくなります(the 比較級, the 比較級 を使う)480
+He has twice as many books as I.,彼は私の二倍の本を持っています(twice as ... as を使う)481
+I will come as soon as possible.,できるだけ早く来ます(as ... as possible を使う)482
+I have no more than ten yen.,私は10円しか持っていません(no more than を使う)483
+I have not more than ten yen.,私はせいぜい10円しか持っていません(not more than を使う)484
+I have no less than ten yen.,私は10円も持っています(no less than を使う)485
+I have not less than ten yen.,私は少なくとも10円は持っています(not less than を使う)486
+He is more brave than wise.,彼は賢いというよりむしろ勇敢です(more A than B を使う)487
+You should know better than to do that.,そんなことをするほど馬鹿ではないはずだ(know better than to V を使う)488
+He is taller.,彼の方が背が高いです(than 以下を省略する)489
+He is taller than his brother.,彼は弟より背が高いです(比較の中身を補う)490
+He is the taller of the two.,彼はその二人の中で背が高い方です(the 比較級 of the two を使う)491
+He is not so much a teacher as a scholar.,彼は教師というよりむしろ学者です(not so much A as B を使う)492
+He is no less honest than you.,彼はあなたに劣らず正直です(no less A than B を使う)493
+I like him all the more for his faults.,欠点があるからこそいっそう彼が好きです(all the more 比較級 for を使う)494
+The man I saw.,私が見た男(関係詞を省略する)495
+I think he is right.,彼は正しいと思う(接続詞を省略する)496
+You may go if you want to.,行きたければ行ってもいい(助動詞を省略する)497
+To be or not to be.,生か死か(共通部分を省略する)498
+Hearing the news, she cried.,知らせを聞いて彼女は泣いた(節を分詞句に変換する)499
+When she heard the news, she cried.,知らせを聞いたとき彼女は泣いた(分詞句を節に戻す)500
+To see her is my goal.,彼女に会うことが私の目標です(不定詞句を名詞句に書き換える)501
+I expect to win.,勝つことを期待しています(節を不定詞句に圧縮する)502
+He left because of the rain.,彼は雨のために帰りました(節を前置詞句に圧縮する)503
+The girl dancing there is Sue.,あそこで踊っている少女はスーです(分詞句を関係詞節に戻す)504
+In my opinion, it is good.,私の意見では、それは良いです(前置詞句を節として復元する)505
+He, however, is busy.,彼は、しかしながら、忙しいです(カンマで挿入を見抜く)506
+Tom, my friend, is here.,私の友人のトムがここにいます(カンマで同格を見抜く)507
+I like Paris, which is beautiful.,私はパリが好きですが、そこは美しいです(カンマで非制限用法を見抜く)508
+I have one goal: to win.,私には一つの目標があります。それは勝つことです(コロンで説明を見抜く)509
+I need three things: milk, bread, and eggs.,私は三つのもの、牛乳、パン、卵が必要です(コロンで列挙を見抜く)510
+He came — and left.,彼は来ました、そして去りました(ダッシュで補足を見抜く)511
+It was a disaster — a total mess.,それは災難でした、つまりめちゃくちゃでした(ダッシュで言い換えを見抜く)512
+I like tea; she likes coffee.,私はお茶が好きで、彼女はコーヒーが好きです(セミコロンで独立節をつなぐ)513
+He is rich; moreover, he is kind.,彼は金持ちです、その上、親切です(セミコロンの前後を等位に読む)514
+He arrived (late as usual) for the meeting.,彼は（いつものように遅れて）会議に到着しました(括弧内の補足情報を外して読む)515
+He said, "I am tired.",彼は「疲れた」と言いました(引用符内の直接話法を読む)516
+The man, after all the trouble, left.,その男は、結局、去りました(句読点を無視して骨格を取り出す)517
+The boy running in the park is fast.,公園を走っている少年は速いです(分詞のまとまりを一塊で読む)518
+The book that I bought yesterday is good.,昨日買った本は良いです(関係詞節のまとまりを一塊で読む)519
+The key on the table is mine.,テーブルの上の鍵は私のです(前置詞句のまとまりを一塊で読む)520
+There is a cat.,猫がいます(there is を使う)521
+There are two cats.,二匹の猫がいます(there are を使う)522
+There was a dog.,犬がいました(there was を使う)523
+There were many dogs.,たくさんの犬がいました(there were を使う)524
+There will be a party.,パーティーがあるでしょう(there will be を使う)525
+There has been an accident.,事故がありました(there has been を使う)526
+There seems to be a mistake.,間違いがあるようです(There seems to be を使う)527
+There appears to be no problem.,問題はないようです(There appears to be を使う)528
+There happened to be a taxi.,たまたまタクシーがありました(There happened to be を使う)529
+There being no time, we left.,時間がなかったので私たちは出発しました(there being を使う)530
+She seems to be happy.,彼女は幸せそうです(seem to V を使う)531
+He appears to know the truth.,彼は真実を知っているようです(appear to V を使う)532
+I happened to meet him.,たまたま彼に会いました(happen to V を使う)533
+His story proved to be true.,彼の話は本当だとわかりました(prove to V を使う)534
+The result turned out to be good.,結果は良いとわかりました(turn out to V を使う)535
+He is said to be rich.,彼は金持ちだと言われています(be said to V を使う)536
+She is believed to be innocent.,彼女は無実だと信じられています(be believed to V を使う)537
+He is thought to be a genius.,彼は天才だと思われています(be thought to V を使う)538
+He is known to be kind.,彼は親切だとして知られています(be known to V を使う)539
+She is reported to be safe.,彼女は無事だと報告されています(be reported to V を使う)540
+It is likely to rain.,雨が降りそうです(be likely to V を使う)541
+It is unlikely to fail.,失敗しそうにありません(be unlikely to V を使う)542
+He is sure to win.,彼はきっと勝ちます(be sure to V を使う)543
+She is certain to come.,彼女は確実に着きます(be certain to V を使う)544
+You are supposed to be here.,あなたはここにいることになっています(be supposed to V を使う)545
+He is expected to arrive soon.,彼はすぐ到着すると期待されています(be expected to V を使う)546
+You are required to show your ID.,身分証を提示する必要があります(be required to V を使う)547
+You are allowed to go.,行くことが許されています(be allowed to V を使う)548
+I found it easy to swim.,泳ぐのは簡単だとわかりました(形式目的語 it を使う)549
+I think it wrong to lie.,嘘をつくのは悪いことだと思います(think it C to do を使う)550
+I find it difficult to speak English.,英語を話すのは難しいと感じます(find it C to do を使う)551
+This will make it easier to work.,これが仕事をより簡単にします(make it C to do を使う)552
+I consider it a duty to help.,助けることは義務だと考えます(consider it C to do を使う)553
+I take it for granted that you agree.,あなたが同意するのは当然だと思っています(take it for granted that を使う)554
+We found the room empty.,部屋が空いているのがわかりました(S + V + O + C を読む)555
+I believe him to be honest.,彼は正直だと信じています(S + V + O + to be C を読む)556
+He made me clean the room.,彼は私に部屋の掃除をさせました(make + O + 原形不定詞 を使う)557
+I had him fix my car.,彼に車を修理してもらいました(have + O + 原形不定詞 を使う)558
+Let me go.,私に行かせてください(let + O + 原形不定詞 を使う)559
+I got him to help me.,彼に手伝ってもらいました(get + O + to不定詞 を使う)560
+He said, "I am hungry.",彼は「お腹が空いた」と言いました(直接話法を間接話法に変える)561
+He said that he was hungry.,彼はお腹が空いていると言いました(間接話法を直接話法に戻す)562
+She said she was tired.,彼女は疲れていると言いました(話法で時制を後退させる)563
+He said that the sun rises in the east.,彼は太陽は東から昇ると言いました(時制を後退させない場合を判断する)564
+He said he liked my car.,彼は私の車が好きだと言いました(話法で代名詞を変える)565
+She said she had met him the day before.,彼女は前日に彼に会ったと言いました(話法で時の副詞を変える)566
+He said he would meet me there.,彼はそこで私に会うと言いました(話法で場所表現を変える)567
+He asked me if I was happy.,彼は私が幸せかどうか尋ねました(疑問文を間接話法に変える)568
+He told me to wait.,彼は私に待つように言いました(命令文を間接話法に変える)569
+My boss told me to finish it.,上司は私にそれを終えるように言いました(tell 人 to V で命令を表す)570
+I asked him to open the window.,私は彼に窓を開けてくれるよう頼みました(ask 人 to V で依頼を表す)571
+The doctor advised me to rest.,医者は私に休むよう助言しました(advise 人 to V で助言を表す)572
+She warned me not to go.,彼女は私に行かないよう警告しました(warn 人 to V で警告を表す)573
+He reminded me to call him.,彼は私に彼へ電話するように念押ししました(remind 人 to V で念押しする)574
+I told him the truth.,私は彼に真実を話しました(say to 人 を tell 人 に書き換える)575
+He said that he would come.,彼は来ると言いました(say that を用いて伝える)576
+He explained that the plan had failed.,彼は計画が失敗したと説明しました(explain that を用いて説明する)577
+She mentioned that she was busy.,彼女は忙しいと口にしました(mention that を用いて触れる)578
+He admitted that he was wrong.,彼は自分が間違っていたと認めました(admit that を用いて認める)579
+She denied that she had seen him.,彼女は彼に会ったことを否定しました(deny that を用いて否定する)580
+Open the door.,ドアを開けなさい(命令文を作る)581
+Don't touch it.,それに触れてはいけません(否定命令文を作る)582
+Let’s go out.,外出しましょう(Let’s を使う)583
+Let us pray.,祈りましょう(Let us を使う)584
+Let him do it.,彼にそれをやらせなさい(let 人 do を使う)585
+Do come and see us.,ぜひ遊びに来てください(Do を用いた強調命令を使う)586
+May you succeed!,あなたが成功しますように(祈願文を使う)587
+What a beautiful day!,なんて素晴らしい日なんだ(What の感嘆文を作る)588
+How tall he is!,彼はなんて背が高いんだ(How の感嘆文を作る)589
+Isn't it beautiful?,美しいと思いませんか(感嘆疑問文を読む)590
+It is cold, isn't it?,寒いですね(付加疑問文を作る)591
+You like tea, don't you?,お茶が好きですよね(肯定文の付加疑問を作る)592
+He doesn't smoke, does he?,彼はタバコを吸いませんよね(否定文の付加疑問を作る)593
+Open the door, will you?,ドアを開けてくれますか(命令文の付加疑問を作る)594
+Let’s dance, shall we?,踊りましょうか(Let’s の付加疑問を作る)595
+I am right, aren't I?,私は正しいですよね(I am の付加疑問を作る)596
+There is a problem, isn't there?,問題がありますよね(there 構文の付加疑問を作る)597
+Nobody saw it, did they?,誰もそれを見ませんでしたよね(nobody など否定語の付加疑問を作る)598
+Don't you like it? Yes, I do.,それが好きではないのですか。いいえ、好きです(返答としての yes / no を判断する)599
+I like coffee. So do I.,私はコーヒーが好きです。私もです(so do I / neither do I を使う)600
+I am tired. So am I.,私は疲れています。私もです(so am I を使う)601
+I am not hungry. Neither am I.,お腹が空いていません。私もです(neither am I を使う)602
+I can swim. So can I.,私は泳げます。私もです(so can I を使う)603
+I can't go. Neither can I.,私は行けません。私もです(neither can I を使う)604
+I will be there. So will I.,私はそこに行きます。私もです(so will I を使う)605
+I won't go. Neither will I.,私は行きません。私もです(neither will I を使う)606
+He is not only kind but also brave.,彼は親切なだけでなく勇敢でもあります(not only A but also B を使う)607
+Not only did he come, but he also helped.,彼は来ただけでなく、手伝ってもくれました(not only から始まる倒置を使う)608
+You can either stay or go.,残っても行ってもいいですよ(either A or B を並列で使う)609
+He is neither tall nor short.,彼は高くも低くもありません(neither A nor B を並列で使う)610
+Both Ken and Mary are here.,ケンとメアリーの両方がここにいます(both A and B を並列で使う)611
+I don't know whether he is coming or not.,彼が来るのかどうか分かりません(whether A or B を使う)612
+He as well as I is tired.,私と同様に彼も疲れています(A as well as B を使う)613
+The teacher together with the students was there.,生徒たちと一緒に先生もそこにいました(A together with B を使う)614
+Milk along with sugar.,砂糖と一緒にミルク(A along with B を使う)615
+I prefer tea rather than coffee.,私はコーヒーよりむしろお茶が好きです(rather than を使う)616
+He is a scholar rather than a teacher.,彼は教師というよりむしろ学者です(B rather than A を使う)617
+I'll have tea instead of coffee.,コーヒーの代わりにお茶をいただきます(instead of を使う)618
+Not red but blue.,赤ではなく青(not A but B を使う)619
+I have no less than 100 dollars.,私は100ドルも持っています(no less than を数量で使う)620
+I live in Tokyo.,私は東京に住んでいます(in を場所で使う)621
+The book is on the table.,本はテーブルの上にあります(on を場所で使う)622
+Meet me at the station.,駅で会いましょう(at を場所で使う)623
+In the morning.,朝に(in を時間で使う)624
+On Monday.,月曜日に(on を時間で使う)625
+At five o'clock.,5時に(at を時間で使う)626
+I'll be back by five.,5時までには戻ります(by を期限で使う)627
+I'll wait until five.,5時までずっと待ちます(until を継続で使う)628
+Before the meeting.,会議の前に(before を前置詞で使う)629
+After school.,放課後に(after を前置詞で使う)630
+From morning to night.,朝から晩まで(from を起点で使う)631
+Go to the park.,公園へ行く(to を到達点で使う)632
+For two hours.,二時間の間(for を期間で使う)633
+During the summer.,夏の間中(during を期間内で使う)634
+Within a week.,一週間以内に(within を期限内で使う)635
+Over the weekend.,週末にかけて(over を期間にわたって使う)636
+Throughout the year.,一年中(throughout を全体にわたって使う)637
+Go through the tunnel.,トンネルを通り抜ける(through を通過で使う)638
+Through hard work.,勤勉さを通じて(through を手段で使う)639
+By car.,車で(by を手段で使う)640
+With a knife.,ナイフを使って(with を道具で使う)641
+In English.,英語で(in を手段や方法で使う)642
+Go by bus.,バスで行く(by bus など交通手段を表す)643
+Go on foot.,徒歩で行く(on foot を使う)644
+Arrive in time.,間に合って到着する(in time と on time を使い分ける)645
+At the end of the year.,年末に(at the end of と in the end を使い分ける)646
+By the end of this month.,今月末までに(by the end of を使う)647
+From nine to five.,9時から5時まで(from A to B を使う)648
+Between you and me.,ここだけの話ですが(between A and B を使う)649
+Among my friends.,私の友達の間で(among を三者以上で使う)650
+Above the clouds.,雲の上に(above と over を使い分ける)651
+Under the table.,テーブルの下に(below と under を使い分ける)652
+Walk across the street.,通りを横切って歩く(across と through を使い分ける)653
+Sit beside me.,私の隣に座って(beside と besides を使い分ける)654
+About ten people.,およそ10人(around と about を使い分ける)655
+Beyond my power.,私の力を超えて(beyond を限界超過で使う)656
+Against the plan.,計画に反対して(against を反対で使う)657
+Between the two options.,二つの選択肢の間で(among と between の抽象用法を使い分ける)658
+A man of wisdom.,知恵のある男(of を所属や性質で使う)659
+Wait for him.,彼を待つ(for を目的や対象で使う)660
+Talk about the movie.,映画について話す(about を話題で使う)661
+Regarding your request.,あなたの要望に関して(regarding を使う)662
+Concerning the news.,ニュースに関して(concerning を使う)663
+With regard to the project.,プロジェクトに関して(with regard to を使う)664
+In regard to your email.,メールに関して(in regard to を使う)665
+In terms of quality.,品質の点では(in terms of を使う)666
+According to the weather report.,天気予報によれば(according to を使う)667
+Due to the heavy rain.,大雨のために(due to を使う)668
+Because of the heat.,暑さのために(because of を使う)669
+Owing to the delay.,遅れのために(owing to を使う)670
+Thanks to your help.,あなたの助けのおかげで(thanks to を使う)671
+Despite the cold.,寒さにもかかわらず(despite を使う)672
+In spite of his age.,彼の年齢にもかかわらず(in spite of を使う)673
+Instead of coffee.,コーヒーの代わりに(instead of を使う)674
+Apart from that.,それは別として(apart from を使う)675
+Except for me.,私を除いて(except for を使う)676
+In addition to his salary.,給料に加えて(in addition to を使う)677
+As a result of his effort.,彼の努力の結果として(as a result of を使う)678
+In front of the house.,家の前で(in front of を使う)679
+In back of the building.,建物の後ろに(in back of を使う)680
+He is in charge of sales.,彼は販売の担当です(in charge of を使う)681
+In response to your inquiry.,あなたの問い合わせに応じて(in response to を使う)682
+In advance of the meeting.,会議に先立って(in advance of を使う)683
+On behalf of the group.,グループを代表して(on behalf of を使う)684
+By means of technology.,技術によって(by means of を使う)685
+In the event of an emergency.,緊急事態の場合には(in the event of を使う)686
+For the purpose of study.,勉強の目的で(for the purpose of を使う)687
+On account of the fog.,霧のために(on account of を使う)688
+I am in favor of the plan.,私はその計画に賛成です(in favor of を使う)689
+In place of the manager.,マネージャーの代わりに(in place of を使う)690
+With respect to price.,価格に関して(with respect to を使う)691
+In accordance with the rules.,規則に従って(in accordance with を使う)692
+Prior to the launch.,開始に先立って(prior to を使う)693
+He was late because it rained.,雨が降ったので彼は遅れました(because と because of を使い分ける)694
+Despite the rain.,雨にもかかわらず(although と despite を使い分ける)695
+While I was eating.,私が食べている間に(during と while を使い分ける)696
+Before dinner.,夕食の前に(before の前置詞用法と接続詞用法を区別する)697
+After school.,放課後に(after の前置詞用法と接続詞用法を区別する)698
+Since Monday.,月曜日から(since の前置詞用法と接続詞用法を区別する)699
+As a teacher.,教師として(as の前置詞用法と接続詞用法を区別する)700
+Talk about future.,未来について話す(talk about を使う)701
+Speak to him.,彼に話しかける(speak to を使う)702
+Listen to music.,音楽を聴く(listen to を使う)703
+Look at the moon.,月を見る(look at を使う)704
+Look for keys.,鍵を探す(look for を使う)705
+Look after a child.,子供の世話をする(look after を使う)706
+Depend on you.,あなたに頼る(depend on を使う)707
+Rely on him.,彼を信頼する(rely on を使う)708
+Consist of parts.,部品から成る(consist of を使う)709
+Belong to the club.,クラブに所属する(belong to を使う)710
+Suffer from a cold.,風邪で苦しむ(suffer from を使う)711
+Wait for a bus.,バスを待つ(wait for を使う)712
+Apply for a job.,仕事に応募する(apply for を使う)713
+Apply to a company.,会社に申し込む(apply to を使う)714
+Agree with you.,あなたに賛成する(agree with を使う)715
+Agree to the plan.,計画に同意する(agree to を使う)716
+Agree on the price.,価格で合意する(agree on を使う)717
+Complain about noise.,騒音について不平を言う(complain about を使う)718
+Complain of a headache.,頭痛を訴える(complain of を使う)719
+Apologize for being late.,遅れたことを謝る(apologize for を使う)720
+Pay for dinner.,夕食代を払う(pay for を使う)721
+Search for information.,情報を探す(search for を使う)722
+Ask for help.,助けを求める(ask for を使う)723
+Care for a drink?,飲み物はいかが(care for を使う)724
+Care about environment.,環境を気にかける(care about を使う)725
+Deal with problems.,問題に対処する(deal with を使う)726
+Cope with stress.,ストレスをうまく処理する(cope with を使う)727
+Respond to the mail.,メールに返信する(respond to を使う)728
+Refer to the book.,本を参照する(refer to を使う)729
+Contribute to society.,社会に貢献する(contribute to を使う)730
+Lead to success.,成功につながる(lead to を使う)731
+Result in failure.,失敗に終わる(result in を使う)732
+Result from error.,間違いから生じる(result from を使う)733
+Account for the loss.,損失を説明する(account for を使う)734
+Bring about changes.,変化をもたらす(bring about を使う)735
+Carry out the mission.,任務を遂行する(carry out を使う)736
+Carry on working.,仕事を続ける(carry on を使う)737
+Turn on the TV.,テレビをつける(turn on を使う)738
+Turn off the light.,明かりを消す(turn off を使う)739
+Turn up the radio.,ラジオの音を大きくする(turn up を使う)740
+Turn down the music.,音楽の音を小さくする(turn down を使う)741
+Set up a tent.,テントを張る(set up を使う)742
+Put off the trip.,旅行を延期する(put off を使う)743
+Put on a coat.,コートを着る(put on を使う)744
+Put out the fire.,火を消す(put out を使う)745
+Put up with heat.,暑さを我慢する(put up with を使う)746
+Give up hope.,希望を捨てる(give up を使う)747
+Give in finally.,ついに屈する(give in を使う)748
+Give away old books.,古い本を譲る(give away を使う)749
+Take off shoes.,靴を脱ぐ(take off を使う)750
+Take on responsibility.,責任を引き受ける(take on を使う)751
+Take over the task.,仕事を引き継ぐ(take over を使う)752
+Take up space.,場所を取る(take up を使う)753
+Make up a story.,話を作る(make up を使う)754
+Make for home.,家に向かう(make for を使う)755
+Come across a friend.,友達にばったり会う(come across を使う)756
+Come up with a solution.,解決策を思いつく(come up with を使う)757
+The truth came out.,真実が明らかになった(come out を使う)758
+Life goes on.,人生は続く(go on を使う)759
+Go over the list.,リストをよく調べる(go over を使う)760
+Go through hard times.,辛い時期を経験する(go through を使う)761
+The car broke down.,車が故障した(break down を使う)762
+War broke out.,戦争が勃発した(break out を使う)763
+They broke up.,彼らは別れた(break up を使う)764
+Run out of milk.,牛乳を使い果たす(run out of を使う)765
+Everything worked out.,すべてうまくいった(work out を使う)766
+Point out mistakes.,間違いを指摘する(point out を使う)767
+Figure out the cost.,費用を計算する(figure out を使う)768
+Find out the truth.,真実を見つけ出す(find out を使う)769
+Bring up children.,子供を育てる(bring up を使う)770
+Keep up with the fashion.,流行についていく(keep up with を使う)771
+Catch up with him.,彼に追いつく(catch up with を使う)772
+The meeting took place.,会議が行われた(take place を使う)773
+Have a lunch.,昼食を食べる(make / take / have / give を使い分ける)774
+Perform the task.,任務を遂行する(conduct / perform / carry out を使い分ける)775
+Achieve the goal.,目標を達成する(meet / reach / achieve を使い分ける)776
+Submit the report.,レポートを提出する(submit / attach / enclose を使い分ける)777
+Postpone the event.,イベントを延期する(schedule / reschedule / postpone を使い分ける)778
+Reduce the price.,価格を下げる(increase / decrease / reduce を使い分ける)779
+Qualify for the grant.,助成金の資格を得る(apply for / be eligible for / qualify for を使い分ける)780
+Furthermore, it is cheap.,さらに、それは安いです(furthermore を使う)781
+Moreover, he is kind.,その上、彼は親切です(moreover を使う)782
+In addition, I'm tired.,加えて、私は疲れています(in addition を使う)783
+Besides, I have no money.,それに、お金がありません(besides を接続副詞で使う)784
+However, he is happy.,しかし、彼は幸せです(however を使う)785
+Nevertheless, she tried.,それにもかかわらず、彼女は挑戦しました(nevertheless を使う)786
+Nonetheless, it is true.,それでもやはり、それは事実です(nonetheless を使う)787
+On the other hand, it's risky.,一方で、それは危険です(on the other hand を使う)788
+Use this instead.,代わりにこれを使って(instead を使う)789
+Therefore, I stayed home.,したがって、私は家にいました(therefore を使う)790
+Consequently, he failed.,その結果、彼は失敗しました(consequently を使う)791
+As a result, I won.,結果として、私は勝ちました(as a result を使う)792
+Thus, it was solved.,このようにして、それは解決されました(thus を使う)793
+Hence, the problem.,ゆえに、この問題です(hence を使う)794
+Apples, for example.,例えば、りんご(for example を使う)795
+Fruits, for instance.,例えば、フルーツ(for instance を使う)796
+Cities such as Tokyo.,東京のような都市(such as を使う)797
+In particular, this one.,特に、これです(in particular を使う)798
+Namely, his brother.,すなわち、彼の兄(namely を使う)799
+That is, he is dead.,つまり、彼は死んでいます(that is を使う)800
+He is a linguist; in other words, he studies languages.,彼は言語学者です。言い換えれば言語を研究しています(in other words を使う)801
+In conclusion, we need more time.,結論として、私たちにはもっと時間が必要です(in conclusion を使う)802
+In summary, the plan was a success.,要約すると、その計画は成功でした(in summary を使う)803
+Overall, it was a good day.,全体的に見て、良い一日でした(overall を使う)804
+First, you need to register.,まず最初に、登録する必要があります(first を使う)805
+First of all, let's look at the facts.,まず何よりも、事実を見てみましょう(first of all を使う)806
+Next, add some salt.,次に、塩を少し加えます(next を使う)807
+Then, he left without saying a word.,それから、彼は一言も言わずに立ち去りました(then を使う)808
+Finally, we arrived at the hotel.,ついに、私たちはホテルに到着しました(finally を使う)809
+She was cooking; meanwhile, he was reading.,彼女は料理をしていました。その間、彼は本を読んでいました(meanwhile を使う)810
+Hurry up; otherwise, you'll miss the train.,急ぎなさい。さもないと列車に乗り遅れますよ(otherwise を使う)811
+He is, after all, only a child.,彼は結局のところ、まだ子供なのです(after all を使う)812
+Above all, be true to yourself.,何よりもまず、自分に正直でありなさい(above all を使う)813
+All in all, it was a great experience.,概して、それは素晴らしい経験でした(all in all を使う)814
+It will take at least an hour.,少なくとも一時間はかかるでしょう(at least を使う)815
+He looks young, but in fact he is over fifty.,彼は若く見えますが、実は50歳を過ぎています(in fact を使う)816
+It is a difficult task, indeed.,それは確かに難しい仕事です(indeed を使う)817
+I actually saw him yesterday.,実は昨日彼に会ったのです(actually を使う)818
+He will certainly win the game.,彼は確実に試合に勝つでしょう(certainly を使う)819
+It will probably rain tonight.,今夜はたぶん雨が降るでしょう(probably を使う)820
+Maybe he forgot about the meeting.,もしかすると彼は会議のことを忘れたのかもしれません(maybe を使う)821
+Perhaps he is busy now.,おそらく彼は今忙しいのでしょう(perhaps を使う)822
+Frankly, I don't like the idea.,率直に言って、その考えは好きではありません(frankly を使う)823
+Honestly, I don't know the answer.,正直なところ、答えは分かりません(honestly を使う)824
+Fortunately, no one was injured.,幸運にも、誰も怪我をしませんでした(fortunately を使う)825
+Unfortunately, the store was closed.,残念ながら、店は閉まっていました(unfortunately を使う)826
+In contrast, his brother is very quiet.,対照的に、彼の兄はとても静かです(in contrast を使う)827
+By contrast, the new model is much faster.,それとは対照的に、新しいモデルはずっと速いです(by contrast を使う)828
+For one thing, I don't have enough money.,一つには、私には十分なお金がありません(for one thing を使う)829
+For another, I'm too busy.,もう一つには、忙しすぎます(for another を使う)830
+She not only sings but also dances.,彼女は歌うだけでなく踊りもします(not only ... but also の論理を読む)831
+I stayed home because it was raining.,雨が降っていたので家にいました(because 節の範囲を読む)832
+Although it was cold, we went out.,寒かったけれども、私たちは外出しました(although 節の逆接範囲を読む)833
+If you study hard, you will pass.,一生懸命勉強すれば、合格しますよ(if 節の条件範囲を読む)834
+I like tea, while she likes coffee.,私はお茶が好きですが、一方で彼女はコーヒーが好きです(while の対比を読む)835
+He is rich, whereas she is poor.,彼は金持ちですが、一方で彼女は貧乏です(whereas を使う)836
+Now that you are a college student, you should be more independent.,もう大学生なのだから、もっと自立すべきです(now that を既知理由で使う)837
+Men are different from animals in that they can speak.,人間は話すことができるという点で動物とは異なります(in that を理由で使う)838
+Even if it rains, the game will be held.,たとえ雨が降っても、試合は行われます(even if を譲歩条件で使う)839
+You can stay here as long as you are quiet.,静かにしている限り、ここにいていいですよ(as long as を条件で使う)840
+It was a quiet party, if anything, a bit boring.,静かなパーティーでした。どちらかと言えば、少し退屈でした(if anything を使う)841
+He seldom, if ever, goes to the movies.,彼はめったに、たとえあるにせよ映画には行きません(if ever を使う)842
+It's not that I don't like him.,彼が嫌いというわけではないのです(not that S V を使う)843
+I didn't do it because I wanted to.,やりたかったからやったのではありません(not because S V を使う)844
+What with the noise and the heat, I couldn't sleep.,騒音やら暑さやらで眠れませんでした(what with A and B を使う)845
+When it comes to cooking, she is an expert.,料理のこととなると、彼女は専門家です(when it comes to を使う)846
+As far as I know, he is honest.,私の知る限り、彼は正直です(as far as を使う)847
+The theory is true insofar as it goes.,その理論は、ある範囲内では正しいです(insofar as を使う)848
+Inasmuch as he is a child, we must forgive him.,彼は子供なのだから、許してあげなければなりません(inasmuch as を使う)849
+For all his wealth, he is not happy.,あれほど金持ちなのに、彼は幸せではありません(for all を譲歩で使う)850
+The work is all but finished.,仕事はほとんど終わっています(all but を使う)851
+He is anything but a hero.,彼は決して英雄などではありません(anything but を使う)852
+He has many faults, but I like him none the less.,彼には欠点が多いですが、それでもやはり私は彼が好きです(none the less を使う)853
+He can't speak English, much less French.,彼は英語が話せません。フランス語ならなおさらです(much less を使う)854
+I don't even know his name, still less his address.,彼の名前さえ知りません。住所ならなおさらです(still less を使う)855
+He can't drive a car, let alone a truck.,彼は車を運転できません。トラックならなおさらです(let alone を使う)856
+He has a car, not to mention a bicycle.,彼は自転車は言うまでもなく、車も持っています(not to mention を使う)857
+It is beautiful, to say nothing of the price.,値段は言うまでもなく、それは美しいです(to say nothing of を使う)858
+It is difficult, if not impossible.,不可能ではないにしても、それは難しいです(if not を使う)859
+No sooner had he seen me than he ran away.,私を見るとすぐに、彼は逃げ出しました(no sooner ... than を使う)860
+Hardly had I reached home when it started raining.,家に着くとすぐに雨が降り出しました(hardly ... when を使う)861
+Scarcely had the movie started when the power went out.,映画が始まるとすぐに停電になりました(scarcely ... when を使う)862
+No sooner had I sat down than the bell rang.,座るか座らないかのうちにベルが鳴りました(no sooner の時制を合わせる)863
+Hardly had she heard the news when she began to cry.,その知らせを聞くとすぐに、彼女は泣き出しました(hardly の時制を合わせる)864
+Every time I see him, he is smiling.,彼に会うたびに、彼は笑っています(every time を使う)865
+Each time I go there, I buy something.,そこへ行くたびに、何かを買います(each time を使う)866
+Whenever he comes, he brings some flowers.,彼が来るときはいつでも、花を持ってきてくれます(whenever を反復で使う)867
+I'll tell him the moment he arrives.,彼が着いた瞬間に伝えます(the moment を使う)868
+The instant he saw her, he recognized her.,彼女を見た瞬間に、彼は彼女だと分かりました(the instant を使う)869
+Wait for me the minute I'm done.,終わったらすぐに待っていてください(the minute を使う)870
+By the time you get there, he will be gone.,あなたがそこに着くまでに、彼は行ってしまっているでしょう(by the time の時制を判断する)871
+I'll wait until five, but be here by then.,5時まで待ちますが、それまでにはここに来てください(until と by を使い分ける)872
+Not until yesterday did I know the truth.,昨日になってはじめて、私は真実を知りました(not until ... 倒置 を使う)873
+Only when I left did I realize it.,去ってはじめて、それに気づきました(only when ... 倒置 を使う)874
+Only after he died did they understand him.,彼が死んでからはじめて、彼らは彼を理解しました(only after ... 倒置 を使う)875
+Only by working hard can you succeed.,一生懸命働くことによってのみ、成功できます(only by ... 倒置 を使う)876
+Only then did he speak.,その時はじめて彼は話しました(only then を使う)877
+Never did I dream of such a thing.,そんなことは夢にも思いませんでした(never を文頭で使う)878
+Rarely does he go out at night.,彼はめったに夜外出することはありません(rarely を文頭で使う)879
+Seldom have I seen such a beautiful sunset.,これほど美しい夕日はめったに見たことがありません(seldom を文頭で使う)880
+Little did I know that he was famous.,彼が有名だとはちっとも知りませんでした(little を文頭で使う)881
+Under no circumstances should you touch this.,いかなる状況でもこれに触れてはいけません(under no circumstances を使う)882
+On no account must the door be left open.,決してドアを開けっ放しにしてはいけません(on no account を使う)883
+In no way can we accept this.,私たちは決してこれを受け入れることはできません(in no way を使う)884
+By no means is it true.,それは決して真実ではありません(by no means を使う)885
+He no longer lives here.,彼はもはやここには住んでいません(no longer を使う)886
+I would rather stay home.,私はむしろ家にいたいです(would rather do を使う)887
+I would rather walk than wait for the bus.,バスを待つよりむしろ歩きたいです(would rather A than B を使う)888
+I had rather you didn't smoke.,タバコを吸わないでいただきたいのですが(had rather を使う)889
+He may well be angry.,彼が怒るのももっともです(may well do を使う)890
+We might as well start now.,今出発したほうがいいでしょう(might as well do を使う)891
+You cannot be too careful when you drive.,運転するときはいくら注意してもしすぎることはありません(cannot be too ... を使う)892
+I cannot thank you enough.,感謝の言葉もありません(cannot ... enough を使う)893
+All you have to do is wait.,あなたはただ待つだけでいいのです(all you have to do is do を使う)894
+What I need is a good rest.,私に必要なのは十分な休息です(what S need is ... を使う)895
+The reason why I am late is that I missed the bus.,私が遅れた理由は、バスに乗り遅れたからです(the reason why ... is that ... を使う)896
+The reason is that he is lazy.,理由は彼が怠慢だからです(the reason is that ... を使う)897
+I was sick. That is why I was absent.,病気でした。だから欠席したのです(That is why ... を使う)898
+He was late. This is because he missed the train.,彼は遅れました。これは列車に乗り遅れたからです(This is because ... を使う)899
+It was so cold a day that we stayed inside.,あまりに寒い日だったので、私たちは中にいました(so + 形容詞 + a + 名詞 を使う)900
+I don't have as large a car as yours.,私はあなたのような大きな車は持っていません(as + 形容詞 + a + 名詞 + as を使う)901
+I have too much work to do.,すべき仕事が多すぎます(too much + 不可算名詞 を使う)902
+There are too many people here.,ここには人が多すぎます(too many + 可算名詞複数 を使う)903
+He has so much money.,彼はあんなにたくさんのお金を持っています(so much + 不可算名詞 を使う)904
+There were so many cars on the street.,通りには非常にたくさんの車がありました(so many + 可算名詞複数 を使う)905
+Few of the students passed the test.,その生徒のうち合格した者はほとんどいませんでした(few of the 名詞 を使う)906
+Many of the guests were early.,客の多くは早めに来ていました(many of the 名詞 を使う)907
+Most of the information is useful.,情報の大部分は役に立ちます(most of the 名詞 を使う)908
+None of the money was stolen.,そのお金は少しも盗まれませんでした(none of the 名詞 を使う)909
+All of the fruit is fresh.,その果物はすべて新鮮です(all of the 名詞 を使う)910
+Some of the cakes are delicious.,そのケーキのいくつかは美味しいです(some of the 名詞 を使う)911
+Part of the story is true.,話の一部は本当です(part of the 名詞 の一致を判断する)912
+Half of the students were absent.,生徒の半分は欠席でした(half of the 名詞 の一致を判断する)913
+Ten percent of the work is finished.,仕事の10パーセントが終わりました(percent of the 名詞 の一致を判断する)914
+A series of events took place.,一連の出来事が起こりました(a series of の一致を判断する)915
+A pair of shoes is under the bed.,靴一足がベッドの下にあります(a pair of の一致を判断する)916
+The rest of the students are coming.,残りの生徒たちが来ます(the rest of the 名詞 の一致を判断する)917
+One third of the apple was eaten.,リンゴの3分の1が食べられました(one third of the 名詞 の一致を判断する)918
+Every one of the boxes was empty.,箱はどれも皆空でした(every one of the 名詞 を使う)919
+Each of the girls has a pen.,少女たちはそれぞれペンを持っています(each of the 名詞 を使う)920
+Either of the answers is correct.,どちらの答えも正解です(either of the 名詞 を使う)921
+Neither of the books is mine.,どちらの本も私のではありません(neither of the 名詞 を使う)922
+Both of the boys are tall.,その少年は二人とも背が高いです(both of the 名詞 を使う)923
+None of them came to the party.,彼らのうち誰もパーティーに来ませんでした(none of them を使う)924
+All of them were happy.,彼らはみんな幸せでした(all of them を使う)925
+Some of them are broken.,それらのいくつかは壊れています(some of them を使う)926
+Many of them live in Tokyo.,彼らの多くは東京に住んでいます(many of them を使う)927
+Few of them liked the movie.,彼らのうちその映画を気に入った人はほとんどいませんでした(few of them を使う)928
+Not all of them are rich.,彼らの全員がお金持ちというわけではありません(not all of them を使う)929
+Almost all of them were there.,彼らのほとんど全員がそこにいました(almost all of them を使う)930
+He is a high school teacher.,彼は高校の教師です(名詞を連続させて名詞を修飾する)931
+She is a five-year-old girl.,彼女は5歳の女の子です(ハイフン付き形容詞を作る)932
+I have three brothers.,私には3人の兄弟がいます(数詞を使う)933
+This is the second time.,これが2回目です(序数を使う)934
+Two thirds of the cake is gone.,ケーキの3分の2がなくなりました(分数を使う)935
+The temperature is zero point five.,気温は0.5度です(小数を使う)936
+It is three times as large as that one.,それはあれの3倍の大きさです(倍率表現を使う)937
+The rate is five percent.,率は5パーセントです(パーセント表現を使う)938
+He was born in nineteen ninety-five.,彼は1995年に生まれました(年号を読む)939
+Today is March twenty-fifth.,今日は3月25日です(日付を読む)940
+It's half past ten.,10時半です(時刻を読む)941
+It costs ten dollars and fifty cents.,それは10ドル50セントかかります(金額を読む)942
+It is about two miles from here.,ここから約2マイルです(距離を読む)943
+He weighs sixty kilograms.,彼の体重は60キログラムです(重さを読む)944
+The committee is meeting now.,委員会は今会議をしています(集合名詞を単数で扱う)945
+The committee are all in favor.,委員会のメンバーは全員賛成です(集合名詞を複数で扱う)946
+My family is very large.,私の家族は大世帯です(family など集合名詞の数を判断する)947
+The police are investigating the case.,警察はその事件を調査しています(police を複数扱いする)948
+Many people were there, but I only knew one person.,大勢の人がいましたが、一人の人しか知りませんでした(people と person を使い分ける)949
+The staff are very friendly.,スタッフはとても親切です(staff の数を判断する)950
+He gave me a lot of information.,彼はたくさんの情報をくれました(information を不可算で使う)951
+Let me give you some advice.,助言をいくつかあげましょう(advice を不可算で使う)952
+We bought some new furniture.,私たちは新しい家具をいくつか買いました(furniture を不可算で使う)953
+I have two pieces of luggage.,手荷物が2個あります(baggage と luggage を使い分ける)954
+They need modern equipment.,彼らは近代的な設備を必要としています(equipment を不可算で使う)955
+All the machinery is new.,機械類はすべて新しいです(machinery を不可算で使う)956
+I have a lot of work to do in my new job.,新しい仕事には、すべき作業がたくさんあります(work と job を使い分ける)957
+I have had many experiences during my trip.,旅行中に多くの経験をしました(experience の可算用法と不可算用法を区別する)958
+There is no room for doubt.,疑いの余地はありません(room の可算用法と不可算用法を区別する)959
+I need a sheet of paper.,紙が1枚必要です(paper の可算用法と不可算用法を区別する)960
+He runs a small business.,彼は小さな商売を営んでいます(business の可算用法と不可算用法を区別する)961
+The news was surprising.,その知らせは驚くべきものでした(news を単数扱いする)962
+Mathematics is my favorite subject.,数学は私の大好きな科目です(mathematics など -s 語尾の単数名詞を扱う)963
+The telephone is a means of communication.,電話は通信の手段です(means の単複を判断する)964
+There are many species of birds.,多くの鳥の種がいます(species の単複を判断する)965
+A series of lectures is starting.,一連の講義が始まります(series の単複を判断する)966
+I have no less than fifty dollars.,私は50ドルも持っています(no less than の語感差を読む)967
+I have not more than ten dollars.,私はせいぜい10ドルしか持っていません(not more than の語感差を読む)968
+There were fewer people than expected.,予想より少ない人しかいませんでした(less と fewer を使い分ける)969
+A large amount of water was wasted.,多量の水が無駄にされました(amount と number を使い分ける)970
+They helped each other.,彼らは互いに助け合いました(one another と each other を使い分ける)971
+I saw it myself.,私自身がそれを見ました(再帰代名詞を強調用法で使う)972
+What he said was true.,彼の言ったことは本当でした(free relative の what を読む)973
+Whoever comes will be welcome.,来る人は誰でも歓迎します(whoever の名詞節用法と譲歩用法を区別する)974
+Take whatever you want.,欲しいものは何でも持っていきなさい(whatever の名詞節用法と譲歩用法を区別する)975
+Choose whichever you like.,どちらでも好きな方を選びなさい(whichever の名詞節用法と限定用法を区別する)976
+He talks as if he were an expert.,彼はまるで専門家であるかのように話します(as if の仮定法用法と直説法用法を区別する)977
+It looks as though it is going to rain.,雨が降りそうな様子です(as though の仮定法用法と直説法用法を区別する)978
+In case of an emergency, call this number.,緊急の場合には、この番号に電話してください(in case S V と in case of 名詞 を使い分ける)979
+I'll give you a map so that you can find the way.,道が分かるように地図をあげましょう(so that can と so that may を使い分ける)980
+He hurried lest he should be late.,彼は遅れないように急ぎました(lest should を使う)981
+On arriving at the station, I called him.,駅に着くとすぐに、彼に電話しました(on doing で直後を表す)982
+Compared with last year, it's warm today.,去年に比べると、今日は暖かいです(compared with と compared to を使い分ける)983
+Speaking of movies, have you seen the latest one?,映画と言えば、最新のを見ましたか(speaking of を使う)984
+Talking of travel, I'm going to Paris next month.,旅行と言えば、来月パリに行きます(talking of を使う)985
+Granted that it's true, it doesn't matter.,それが本当だとしても、大したことではありません(granted を使う)986
+Provided that the weather is fine, we'll go.,天気が良ければ、私たちは行きます(provided を使う)987
+Providing that he is honest, I'll hire him.,彼が正直なら、彼を雇います(providing を使う)988
+Supposing it rains, what will you do?,もし雨が降ったら、どうしますか(supposing を使う)989
+Seeing that he is young, he did well.,彼が若いことを考えれば、よくやりました(seeing that を使う)990
+I'll finish it as soon as possible.,できるだけ早くそれを終わらせます(as soon as possible と as ... as possible を使い分ける)991
+It rained throughout the night.,一晩中雨が降っていました(over と throughout を使い分ける)992
+We were busy during the day.,私たちは日中忙しかったです(during と throughout を使い分ける)993
+He traveled through the country.,彼はその国中を旅しました(through と throughout を使い分ける)994
+The view was beyond description.,その景色は言葉では言い表せないほどでした(beyond と over の抽象用法を使い分ける)995
+He laughed despite himself.,彼は思わず笑ってしまいました(despite oneself を使う)996
+The work is easy in itself.,その仕事それ自体は簡単です(in itself を使う)997
+The door closed of itself.,ドアが自然に閉まりました(of itself を使う)998
+He is not at all tired.,彼は少しも疲れていません(at all と not at all を使い分ける)999
+I think that the most important thing in life is to keep learning every day.,人生で最も大切なことは、毎日学び続けることだと私は思います(文全体の構造と意味を最後まで統合して読む)1000
+</script>
+</body>
+</html>
