@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
-    <title>英語例文暗唱 極限修行版V7.1</title>
+    <title>英語例文暗唱 極限修行版V7.2</title>
     <style>
         :root {
             --bg: #070b14;
@@ -22,50 +22,52 @@
             overflow-x: hidden; touch-action: manipulation;
         }
         
-        #setup, #report { padding: 20px; min-height: 100vh; overflow-y: auto; display: none; }
+        #setup, #report { padding: 15px; min-height: 100vh; overflow-y: auto; display: none; }
         #setup.active, #report.active { display: block; }
         #app { display: none; position: fixed; inset: 0; background: var(--bg); flex-direction: column; padding: 20px; z-index: 100; }
         #app.active { display: flex; }
 
-        .container { max-width: 600px; margin: 0 auto; background: var(--container); border-radius: 32px; padding: 24px; border: 1px solid #1f2937; }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 20px; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
-        .label { font-size: 12px; font-weight: bold; color: var(--gray); margin: 15px 0 5px 4px; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--container); border-radius: 24px; padding: 20px; border: 1px solid #1f2937; }
+        h1 { font-size: 20px; text-align: center; margin-bottom: 20px; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
         
-        .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .input-group { background: #1f2937; padding: 10px; border-radius: 12px; border: 1px solid #374151; }
-        .input-group span { font-size: 10px; display: block; margin-bottom: 5px; color: #9ca3af; }
+        .label { font-size: 11px; font-weight: bold; color: var(--gray); margin: 12px 0 4px 4px; display: flex; justify-content: space-between; align-items: center; }
         
-        .adj-container { display: flex; align-items: center; gap: 8px; }
-        .adj-btn { background: #374151; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        @media (max-width: 480px) { .param-grid { grid-template-columns: 1fr; } }
+
+        .input-group { background: #1f2937; padding: 8px; border-radius: 12px; border: 1px solid #374151; }
+        .input-group span { font-size: 9px; display: block; margin-bottom: 4px; color: #9ca3af; }
+        
+        .adj-container { display: flex; align-items: center; gap: 6px; }
+        .adj-btn { background: #374151; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .adj-btn:active { background: var(--primary); transform: scale(0.9); }
 
         input { 
-            width: 100%; background: transparent; border: none; color: white; 
-            font-size: 18px; font-weight: bold; outline: none; text-align: center;
+            flex: 1; min-width: 40px; background: transparent; border: none; color: white; 
+            font-size: 16px; font-weight: bold; outline: none; text-align: center;
         }
 
-        .range-box { background: #1e1b4b; padding: 15px; border-radius: 16px; border: 1px solid var(--accent); margin-bottom: 15px; }
+        .range-box { background: #1e1b4b; padding: 12px; border-radius: 16px; border: 1px solid var(--accent); margin-bottom: 15px; }
         textarea { width: 100%; height: 60px; background: rgba(0,0,0,0.4); color: #94a3b8; border: 1px solid #374151; border-radius: 12px; padding: 10px; font-size: 11px; margin-top: 5px; outline: none; resize: none; }
 
-        button.main-btn { width: 100%; height: 60px; border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        button.main-btn { width: 100%; height: 56px; border: none; border-radius: 16px; font-size: 18px; font-weight: 900; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
         button.main-btn:active { transform: scale(0.98); }
 
-        .copy-btn { background: var(--gray); color: white; border: none; padding: 4px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; font-weight: bold; margin-bottom: 4px; }
-        .copy-btn:active { background: var(--primary); }
+        .copy-btn { background: var(--gray); color: white; border: none; padding: 3px 10px; border-radius: 6px; font-size: 9px; cursor: pointer; font-weight: bold; }
         
-        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 20px; }
-        #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; }
-        #japaneseWord { font-size: 20px; color: #9ca3af; font-weight: bold; line-height: 1.5; max-width: 95%; }
+        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; gap: 15px; }
+        #englishWord { font-size: 28px; font-weight: 900; line-height: 1.2; color: var(--text); word-break: break-word; max-width: 95%; }
+        #japaneseWord { font-size: 18px; color: #9ca3af; font-weight: bold; line-height: 1.4; max-width: 95%; }
         
-        #timerTrack { width: 100%; height: 10px; background: #1f2937; margin-top: 20px; border-radius: 5px; overflow: hidden; opacity: 0; }
+        #timerTrack { width: 100%; height: 8px; background: #1f2937; margin-top: 15px; border-radius: 4px; overflow: hidden; opacity: 0; }
         #timerTrack.active { opacity: 1; }
         #timerBar { height: 100%; background: var(--danger); width: 0%; }
 
-        .progress-container { width: 100%; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; margin: 10px 0; }
+        .progress-container { width: 100%; height: 4px; background: #1f2937; border-radius: 2px; overflow: hidden; margin: 8px 0; }
         #progressBar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
         
-        .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 20px; }
-        .ans-btn { height: 85px; border: none; border-radius: 28px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 15px; }
+        .ans-btn { height: 75px; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; cursor: pointer; }
         #correctBtn { background: var(--success); }
         #wrongBtn { background: var(--danger); }
     </style>
@@ -74,7 +76,7 @@
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱 極限修行 V7.1</h1>
+        <h1>英語例文暗唱 極限修行 V7.2</h1>
         
         <div class="range-box">
             <div class="label">修行範囲と個数</div>
@@ -83,7 +85,7 @@
                     <span>開始ID</span>
                     <div class="adj-container">
                         <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', -100)">-100</button>
-                        <input type="number" id="rangeStart" value="1" pattern="\d*" inputmode="numeric">
+                        <input type="number" id="rangeStart" value="1" inputmode="numeric">
                         <button type="button" class="adj-btn" onclick="adjustValue('rangeStart', 100)">+100</button>
                     </div>
                 </div>
@@ -91,80 +93,82 @@
                     <span>終了ID</span>
                     <div class="adj-container">
                         <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', -100)">-100</button>
-                        <input type="number" id="rangeEnd" value="1000" pattern="\d*" inputmode="numeric">
+                        <input type="number" id="rangeEnd" value="1000" inputmode="numeric">
                         <button type="button" class="adj-btn" onclick="adjustValue('rangeEnd', 100)">+100</button>
                     </div>
                 </div>
             </div>
-            <div class="input-group" style="background: rgba(255,255,255,0.1);">
+            <div class="input-group" style="background: rgba(255,255,255,0.05); margin-top: 8px;">
                 <span>やる個数</span>
                 <div class="adj-container">
                     <button type="button" class="adj-btn" onclick="adjustValue('testLimit', -10)">-10</button>
-                    <input type="number" id="testLimit" value="100" pattern="\d*" inputmode="numeric">
+                    <input type="number" id="testLimit" value="100" inputmode="numeric">
                     <button type="button" class="adj-btn" onclick="adjustValue('testLimit', 10)">+10</button>
                 </div>
             </div>
         </div>
 
-        <div class="label">読み上げ速度設定</div>
+        <div class="label">読み上げ速度（英 / 日）</div>
         <div class="param-grid">
             <div class="input-group">
-                <span>英語速度</span>
+                <span>英語</span>
                 <input type="number" id="speechRateEn" value="1.2" step="0.1" inputmode="decimal">
             </div>
             <div class="input-group">
-                <span>日本語速度</span>
+                <span>日本語</span>
                 <input type="number" id="speechRateJa" value="1.2" step="0.1" inputmode="decimal">
             </div>
         </div>
 
-        <div class="label">回答猶予（日本語終了後 何秒で不合格か）</div>
+        <div class="label">回答猶予（日本語終了後）</div>
         <div class="input-group">
-            <input type="number" id="limitSeconds" value="1.0" step="0.1" inputmode="decimal">
+            <div class="adj-container">
+                <button type="button" class="adj-btn" onclick="adjustValueFloat('limitSeconds', -0.1)">-0.1s</button>
+                <input type="number" id="limitSeconds" value="1.0" step="0.1" inputmode="decimal">
+                <button type="button" class="adj-btn" onclick="adjustValueFloat('limitSeconds', 0.1)">+0.1s</button>
+            </div>
         </div>
 
-        <div class="label">データ復元</div>
-        <textarea id="importArea" placeholder="ID:Lv:Iv,..."></textarea>
+        <div class="label">データ復元（ID:Lv:Iv,...）</div>
+        <textarea id="importArea" placeholder="ここに保存用データを貼り付け"></textarea>
 
-        <button class="main-btn" onclick="startTraining()">修行開始</button>
+        <button class="main-btn" onclick="startTraining()" style="margin-top: 15px;">修行開始</button>
     </div>
 </div>
 
 <div id="app">
-    <div id="infoText" style="text-align:center; font-size:12px; color:var(--gray); margin-bottom:5px;"></div>
+    <div id="infoText" style="text-align:center; font-size:11px; color:var(--gray); margin-bottom:4px;"></div>
     <div class="progress-container"><div id="progressBar"></div></div>
-    
     <div id="card">
         <div id="englishWord"></div>
         <div id="japaneseWord"></div>
         <div id="timerTrack"><div id="timerBar"></div></div>
     </div>
-
     <div class="ans-btns">
         <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
         <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">正解 (Z)</button>
     </div>
-    <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:12px; cursor:pointer;">中断する (Space)</button>
+    <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:11px; cursor:pointer; padding-bottom: 10px;">中断 (Space)</button>
 </div>
 
 <div id="report">
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
-        <div id="resultScore" style="font-size:28px; font-weight:900; color:var(--success); margin-bottom:10px;"></div>
+        <div id="resultScore" style="font-size:24px; font-weight:900; color:var(--success); margin-bottom:15px;"></div>
         
         <div class="label">
-            <span>間違えた問題</span>
-            <button class="copy-btn" onclick="copyText('wrongWordsArea')">リストをコピー</button>
+            <span>間違えた問題リスト</span>
+            <button class="copy-btn" onclick="copyText('wrongWordsArea', this)">コピー</button>
         </div>
-        <textarea id="wrongWordsArea" style="height:120px; color:var(--danger);" readonly></textarea>
+        <textarea id="wrongWordsArea" style="height:100px; color:var(--danger);" readonly></textarea>
 
-        <div class="label">
+        <div class="label" style="margin-top:15px;">
             <span>保存用数値データ</span>
-            <button class="copy-btn" onclick="copyText('numericalArea')">データをコピー</button>
+            <button class="copy-btn" onclick="copyText('numericalArea', this)">コピー</button>
         </div>
-        <textarea id="numericalArea" style="height:60px;" readonly></textarea>
+        <textarea id="numericalArea" style="height:50px;" readonly></textarea>
 
-        <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップへ戻る</button>
+        <button class="main-btn" onclick="location.reload()" style="margin-top:20px; background:var(--gray);">トップに戻る</button>
     </div>
 </div>
 
@@ -175,8 +179,6 @@ let queue = [];
 let results = [];
 let activeWord = null;
 let limitTimer = null;
-
-window.speechSynthesis.getVoices();
 
 function loadWords() {
     const dataNode = document.getElementById('words-data');
@@ -204,44 +206,42 @@ function adjustValue(id, delta) {
     el.value = val;
 }
 
-function copyText(id) {
+function adjustValueFloat(id, delta) {
+    const el = document.getElementById(id);
+    let val = parseFloat(el.value) || 0;
+    val = Math.max(0.1, Math.round((val + delta) * 10) / 10);
+    el.value = val.toFixed(1);
+}
+
+function copyText(id, btn) {
     const area = document.getElementById(id);
     area.select();
     navigator.clipboard.writeText(area.value).then(() => {
-        const btn = event.target;
-        const original = btn.textContent;
-        btn.textContent = "コピー完了";
-        setTimeout(() => btn.textContent = original, 1500);
+        const originalText = btn.textContent;
+        btn.textContent = "完了";
+        setTimeout(() => btn.textContent = originalText, 1000);
     });
 }
 
 function startTraining() {
     if (WORDS.length === 0) loadWords();
-    
     const startNum = parseInt(document.getElementById('rangeStart').value) || 1;
     const endNum = parseInt(document.getElementById('rangeEnd').value) || 1000;
     const testLimit = parseInt(document.getElementById('testLimit').value) || 100;
-
     const imp = document.getElementById('importArea').value.trim();
     if (imp) {
         imp.split(',').forEach(e => {
             const p = e.split(':');
             if (p.length >= 3) {
                 const id = Number(p[0]);
-                if (mastery[id]) {
-                    mastery[id].lv = Number(p[1]);
-                    mastery[id].iv = Number(p[2]);
-                }
+                if (mastery[id]) { mastery[id].lv = Number(p[1]); mastery[id].iv = Number(p[2]); }
             }
         });
     }
-
     let available = WORDS.filter(w => w.id >= startNum && w.id <= endNum);
     available.sort(() => Math.random() - 0.5);
     queue = available.slice(0, testLimit);
-
     if (queue.length === 0) return alert("範囲内にデータがありません。");
-
     results = [];
     document.getElementById("setup").classList.remove('active');
     document.getElementById("app").classList.add('active');
@@ -255,17 +255,13 @@ function nextWord() {
     track.classList.remove('active');
     bar.style.transition = "none";
     bar.style.width = "0%";
-    
     if (queue.length === 0) return finishTraining();
     activeWord = queue.shift();
-    
     const total = results.length + queue.length + 1;
     document.getElementById("infoText").textContent = `ID: ${activeWord.id} | ${results.length + 1} / ${total}`;
     document.getElementById("progressBar").style.width = `${(results.length / total) * 100}%`;
-    
     document.getElementById("englishWord").textContent = activeWord.en;
     document.getElementById("japaneseWord").textContent = activeWord.ja;
-    
     speakChain(activeWord.en, activeWord.ja);
 }
 
@@ -274,25 +270,16 @@ function speakChain(en, ja) {
     const rateEn = parseFloat(document.getElementById('speechRateEn').value) || 1.2;
     const rateJa = parseFloat(document.getElementById('speechRateJa').value) || 1.2;
     const voices = window.speechSynthesis.getVoices();
-    
     const uttrEn = new SpeechSynthesisUtterance(en);
     uttrEn.lang = 'en-US';
     uttrEn.rate = rateEn;
     const enVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
     if (enVoice) uttrEn.voice = enVoice;
-
     const uttrJa = new SpeechSynthesisUtterance(ja);
     uttrJa.lang = 'ja-JP';
     uttrJa.rate = rateJa;
-
-    uttrEn.onend = () => {
-        window.speechSynthesis.speak(uttrJa);
-    };
-
-    uttrJa.onend = () => {
-        startStressTimer();
-    };
-
+    uttrEn.onend = () => window.speechSynthesis.speak(uttrJa);
+    uttrJa.onend = () => startStressTimer();
     window.speechSynthesis.speak(uttrEn);
 }
 
@@ -303,22 +290,13 @@ function startStressTimer() {
     track.classList.add('active');
     bar.style.transition = `width ${seconds}s linear`;
     bar.style.width = "100%";
-    
-    limitTimer = setTimeout(() => {
-        processAnswer(false); 
-    }, seconds * 1000);
+    limitTimer = setTimeout(() => processAnswer(false), seconds * 1000);
 }
 
 function processAnswer(isOk) {
     clearTimeout(limitTimer);
     const m = mastery[activeWord.id];
-    if (isOk) { 
-        m.lv++; 
-        m.iv *= 2; 
-    } else { 
-        m.lv = 0; 
-        m.iv = 1; 
-    }
+    if (isOk) { m.lv++; m.iv *= 2; } else { m.lv = 0; m.iv = 1; }
     results.push({ ...activeWord, ok: isOk });
     nextWord();
 }
@@ -327,15 +305,11 @@ function finishTraining() {
     window.speechSynthesis.cancel();
     document.getElementById("app").classList.remove('active');
     document.getElementById("report").classList.add('active');
-    
     const correct = results.filter(r => r.ok).length;
     const wrongOnes = results.filter(r => !r.ok);
     const accuracy = ((correct / results.length) * 100 || 0).toFixed(1);
-    
     document.getElementById("resultScore").textContent = `${correct} / ${results.length} (${accuracy}%)`;
-    
     document.getElementById("wrongWordsArea").value = wrongOnes.map(r => r.raw).join('\n');
-    
     document.getElementById("numericalArea").value = Object.keys(mastery)
         .filter(id => mastery[id].lv > 0 || mastery[id].iv > 1)
         .map(id => `${id}:${mastery[id].lv}:${mastery[id].iv}`)
