@@ -31,7 +31,7 @@
         #app.active { display: flex; }
 
         .container { max-width: 650px; margin: 0 auto; background: var(--container); border-radius: 28px; padding: 20px; border: 1px solid #374151; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-        h1 { font-size: 20px; text-align: center; margin: 0 0 15px 0; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
+        h1 { font-size: 22px; text-align: center; margin: 0 0 15px 0; color: var(--primary); font-weight: 900; letter-spacing: 1px; }
 
         .dashboard { background: rgba(31, 41, 55, 0.5); border-radius: 24px; padding: 18px; margin-bottom: 20px; border: 1px solid #374151; }
         .db-bar { height: 14px; display: flex; border-radius: 7px; overflow: hidden; background: #030712; margin-bottom: 12px; }
@@ -56,7 +56,7 @@
         .adj-btn { background: #334155; color: white; border: none; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; min-width: 44px; }
         .adj-btn:active { transform: scale(0.9); background: var(--primary); }
 
-        input { width: 70px; background: transparent; border: none; color: white; font-size: 20px; font-weight: 900; text-align: center; }
+        input { width: 75px; background: transparent; border: none; color: white; font-size: 20px; font-weight: 900; text-align: center; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         .range-box { background: linear-gradient(145deg, #1e1b4b, #111827); padding: 18px; border-radius: 24px; border: 1px solid var(--accent); margin-bottom: 18px; }
@@ -68,11 +68,11 @@
         .sm-btn { background: #374151; color: white; border: none; padding: 7px 14px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: 800; }
         .io-btn { background: var(--accent); color: white; border: none; padding: 7px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
         
-        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; gap: 15px; background: var(--card-bg); border-radius: 48px; margin: 10px 0; position: relative; border: 1px solid #374151; box-shadow: inset 0 0 40px rgba(0,0,0,0.4); }
-        #wordBadge { position: absolute; top: 30px; font-size: 20px; font-weight: 900; padding: 4px 18px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid currentColor; }
+        #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; gap: 10px; background: var(--card-bg); border-radius: 48px; margin: 10px 0; position: relative; border: 1px solid #374151; box-shadow: inset 0 0 40px rgba(0,0,0,0.4); }
+        #wordBadge { position: absolute; top: 30px; font-size: 18px; font-weight: 900; padding: 4px 18px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid currentColor; }
         
-        #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; margin-top: 40px; letter-spacing: -0.5px; }
-        #japaneseWord { font-size: 20px; color: var(--primary); font-weight: 800; visibility: hidden; min-height: 1.5em; margin-top: 15px; line-height: 1.4; }
+        #englishWord { font-size: 34px; font-weight: 900; line-height: 1.25; color: var(--text); word-break: break-word; max-width: 95%; margin-top: 40px; }
+        #japaneseWord { font-size: 22px; color: var(--gold); font-weight: 800; visibility: hidden; min-height: 1.5em; margin-top: 15px; }
         #japaneseWord.visible { visibility: visible; }
         
         #timerTrack { width: 100%; height: 10px; background: #030712; margin-top: 25px; border-radius: 10px; overflow: hidden; opacity: 0; }
@@ -93,7 +93,7 @@
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>英語例文暗唱修行 V15.0</h1>
+        <h1>暗唱修行 V15.0：1000例文</h1>
 
         <div class="dashboard">
             <div class="db-bar">
@@ -103,7 +103,7 @@
                 <div id="bar-new" class="db-seg seg-new"></div>
             </div>
             <div class="db-legend">
-                <div class="lg-item"><span class="lg-label">完了(a)</span><span id="val-a" class="lg-val" style="color:var(--gold)">0</span></div>
+                <div class="lg-item"><span class="lg-label">習得(a)</span><span id="val-a" class="lg-val" style="color:var(--gold)">0</span></div>
                 <div class="lg-item"><span class="lg-label">継続(b)</span><span id="val-b" class="lg-val" style="color:var(--accent)">0</span></div>
                 <div class="lg-item"><span class="lg-label">苦手(c)</span><span id="val-c" class="lg-val" style="color:var(--danger)">0</span></div>
                 <div class="lg-item"><span class="lg-label">未着手</span><span id="val-new" class="lg-val" style="color:var(--silver)">0</span></div>
@@ -112,13 +112,14 @@
         
         <div class="input-group" style="margin-bottom:15px; background: #1e1b4b;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:6px;">
-                <span style="color:#fff">データ復元 / 書き出し</span>
+                <span style="color:#fff">進捗復元 / 書き出し</span>
                 <div style="display:flex; gap:6px;">
+                    <button class="io-btn" style="background: var(--success);" onclick="importData()">復元</button>
                     <button class="io-btn" onclick="exportData()">出す</button>
-                    <button class="io-btn" style="background:#4b5563;" onclick="clearImport()">消す</button>
+                    <button class="io-btn" style="background:#4b5563;" onclick="clearImport()">消去</button>
                 </div>
             </div>
-            <textarea id="importArea" oninput="updateDashboard()" placeholder="ここに「保存用データ」を貼り付けて復元"></textarea>
+            <textarea id="importArea" oninput="updateDashboard()" placeholder="ここに保存用データを貼り付けて「復元」"></textarea>
         </div>
 
         <div class="range-box">
@@ -135,17 +136,17 @@
             </div>
             <div class="input-group" style="background: rgba(255,255,255,0.05); margin-top:8px;">
                 <span>今回の修行数</span>
-                <div class="adj-container"><button class="adj-btn" onclick="adj('testLimit', -50)">-50</button><input type="number" id="testLimit" value="50"><button class="adj-btn" onclick="adj('testLimit', 50)">+50</button></div>
+                <div class="adj-container"><button class="adj-btn" onclick="adj('testLimit', -20)">-20</button><input type="number" id="testLimit" value="50"><button class="adj-btn" onclick="adj('testLimit', 20)">+20</button></div>
             </div>
         </div>
 
-        <div class="label">修行テンポ設定</div>
+        <div class="label">テンポ設定</div>
         <div class="param-grid">
             <div class="input-group"><span>英語速度</span><input type="number" id="rateEn" value="1.3" step="0.1"></div>
             <div class="input-group"><span>日本語速度</span><input type="number" id="rateJa" value="1.5" step="0.1"></div>
             <div class="input-group">
                 <span>解答猶予(秒)</span>
-                <div class="adj-container"><button class="adj-btn" onclick="adjF('limitTime', -0.1)">-</button><input type="number" id="limitTime" value="1.0" step="0.1"><button class="adj-btn" onclick="adjF('limitTime', 0.1)">+</button></div>
+                <div class="adj-container"><button class="adj-btn" onclick="adjF('limitTime', -0.1)">-</button><input type="number" id="limitTime" value="1.5" step="0.1"><button class="adj-btn" onclick="adjF('limitTime', 0.1)">+</button></div>
             </div>
         </div>
 
@@ -166,9 +167,8 @@
         <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
         <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">わかる (Z)</button>
     </div>
-    <div style="display:flex; justify-content: space-between; padding: 5px 10px;">
-        <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:12px; font-weight:bold; cursor:pointer;">中断 (Space)</button>
-        <button onclick="quickCopy()" id="midBtn" class="sm-btn">進捗保存コピー</button>
+    <div style="display:flex; justify-content: center;">
+        <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:11px; font-weight:bold; cursor:pointer;">中断 (Space)</button>
     </div>
 </div>
 
@@ -176,146 +176,84 @@
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
         <div id="resultScore" style="font-size:32px; font-weight:900; color:var(--success); margin-bottom:20px;"></div>
-        <div class="label"><span>今回間違えた例文</span><button class="sm-btn" onclick="copyText('wrongListArea', this)">コピー</button></div>
-        <textarea id="wrongListArea" style="height:110px; color:var(--danger);" readonly></textarea>
-        <div class="label" style="margin-top:20px;"><span>全進捗データ</span><button class="sm-btn" onclick="copyText('numericalArea', this)">コピー</button></div>
-        <textarea id="numericalArea" style="height:70px;" readonly></textarea>
-        <button class="main-btn" onclick="location.reload()" style="margin-top:30px; background:var(--gray);">トップへ戻る</button>
+        <div class="label"><span>間違えた例文リスト</span><button class="sm-btn" onclick="copyText('wrongArea', this)">コピー</button></div>
+        <textarea id="wrongArea" style="height:100px; color:var(--danger);" readonly></textarea>
+        <div class="label" style="margin-top:15px;"><span>保存用コード</span><button class="sm-btn" onclick="copyText('numArea', this)">コピー</button></div>
+        <textarea id="numArea" style="height:60px;" readonly></textarea>
+        <button class="main-btn" onclick="location.reload()" style="margin-top:25px; background:var(--gray);">トップへ戻る</button>
     </div>
 </div>
 
 <script>
-let MAX_ID = 1000;
+let CURRENT_TOTAL = 1000;
 const WORDS = [];
 let mastery = {};
 let queue = [];
 let results = [];
 let activeWord = null;
 let stressTimer = null;
-let enVoice = null;
+let audioCtx = null;
 
-function setupVoices() {
-    const fn = () => {
-        const voices = window.speechSynthesis.getVoices();
-        enVoice = voices.find(v => v.name.includes('Google') && v.lang === 'en-US') || 
-                  voices.find(v => v.lang === 'en-US') || 
-                  voices.find(v => v.lang.startsWith('en'));
-    };
-    fn();
-    window.speechSynthesis.onvoiceschanged = fn;
+function playSound(type) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = type === 'correct' ? 'sine' : 'square';
+    osc.frequency.setValueAtTime(type === 'correct' ? 880 : 220, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
 }
 
 function loadData() {
-    const dataNode = document.getElementById('words-raw-data');
-    if (!dataNode) return;
-    const raw = dataNode.textContent.trim();
-    const idMap = new Map();
+    const raw = document.getElementById('words-data').textContent.trim();
+    WORDS.length = 0;
     raw.split('\n').forEach(line => {
         const parts = line.split(',');
         if (parts.length < 2) return;
-        const m = parts[1].trim().match(/^(.*?)(\d+)$/);
-        if (m) {
-            const id = parseInt(m[2]);
-            idMap.set(id, { id, en: parts[0].trim(), ja: m[1], raw: line });
-            if (id > MAX_ID) MAX_ID = id;
+        const en = parts[0].trim();
+        const jaWithId = parts[1].trim();
+        const idMatch = jaWithId.match(/\d+$/);
+        if (idMatch) {
+            const id = parseInt(idMatch[0]);
+            const ja = jaWithId.replace(/\d+$/, "");
+            WORDS.push({ id, en, ja, raw: line });
         }
     });
-    WORDS.length = 0;
-    WORDS.push(...Array.from(idMap.values()));
-    
-    // 初期表示設定
-    if(!localStorage.getItem('recitation_config_v15')) {
-        document.getElementById('rangeEnd').value = WORDS.length;
-    }
+    CURRENT_TOTAL = WORDS.length;
 }
 
 function updateDashboard() {
-    const impTxt = document.getElementById('importArea').value.trim();
-    const tempMastery = {...mastery};
-    if (impTxt) {
-        impTxt.split(',').forEach(t => {
-            const m = t.match(/(\d+)([abc])/);
-            if (m) tempMastery[parseInt(m[1])] = m[2];
-        });
-    }
     const counts = { a: 0, b: 0, c: 0, new: 0 };
-    Object.values(tempMastery).forEach(v => counts[v]++);
-    const currentTotal = WORDS.length || 1;
-    counts.new = Math.max(0, currentTotal - (counts.a + counts.b + counts.c));
-
+    Object.values(mastery).forEach(v => counts[v]++);
+    counts.new = Math.max(0, CURRENT_TOTAL - (counts.a + counts.b + counts.c));
     ['a', 'b', 'c', 'new'].forEach(k => {
-        const pct = (counts[k] / currentTotal * 100).toFixed(1);
+        const pct = (counts[k] / (CURRENT_TOTAL || 1) * 100).toFixed(1);
         document.getElementById(`bar-${k}`).style.width = pct + '%';
         document.getElementById(`val-${k}`).textContent = `${counts[k]} (${pct}%)`;
     });
 }
 
-function saveAll() {
-    localStorage.setItem('recitation_mastery_v15', JSON.stringify(mastery));
-    const config = {};
-    ['rangeStart', 'rangeEnd', 'rateEn', 'rateJa', 'limitTime', 'testLimit'].forEach(k => {
-        config[k] = document.getElementById(k).value;
-    });
-    localStorage.setItem('recitation_config_v15', JSON.stringify(config));
+function speak(txt, lang, rateKey) {
+    window.speechSynthesis.cancel();
+    const ut = new SpeechSynthesisUtterance(txt);
+    ut.lang = lang;
+    ut.rate = parseFloat(document.getElementById(rateKey).value) || 1.3;
+    window.speechSynthesis.speak(ut);
 }
-
-function adj(id, delta) {
-    const el = document.getElementById(id);
-    el.value = Math.max(1, parseInt(el.value) + delta);
-    saveAll(); updateDashboard();
-}
-
-function adjF(id, delta) {
-    const el = document.getElementById(id);
-    let v = parseFloat(el.value) || 0;
-    el.value = Math.max(0.1, Math.round((v + delta) * 10) / 10).toFixed(1);
-    saveAll();
-}
-
-window.onload = () => {
-    loadData();
-    const savedM = localStorage.getItem('recitation_mastery_v15');
-    if (savedM) mastery = JSON.parse(savedM);
-    const savedC = localStorage.getItem('recitation_config_v15');
-    if (savedC) {
-        const c = JSON.parse(savedC);
-        ['rangeStart', 'rangeEnd', 'rateEn', 'rateJa', 'limitTime', 'testLimit'].forEach(k => {
-            if (c[k]) document.getElementById(k).value = c[k];
-        });
-    }
-    setupVoices();
-    updateDashboard();
-};
 
 function startTraining() {
     if (WORDS.length === 0) loadData();
-    const imp = document.getElementById('importArea').value.trim();
-    if (imp) {
-        imp.split(',').forEach(t => {
-            const m = t.match(/(\d+)([abc])/);
-            if (m) mastery[parseInt(m[1])] = m[2];
-        });
-    }
-    saveAll();
-    
     const start = parseInt(document.getElementById('rangeStart').value);
     const end = parseInt(document.getElementById('rangeEnd').value);
     const limit = parseInt(document.getElementById('testLimit').value);
     
     let available = WORDS.filter(w => w.id >= start && w.id <= end);
-    available.sort((x, y) => {
-        const priority = (id) => {
-            const s = mastery[id];
-            if (s === 'c') return 1;
-            if (!s) return 1.5;
-            if (s === 'b') return 2;
-            return 3;
-        };
-        return priority(x.id) - priority(y.id) || Math.random() - 0.5;
-    });
-    
+    if (available.length === 0) return alert("対象が見つかりません");
+
+    available.sort(() => Math.random() - 0.5);
     queue = available.slice(0, limit);
-    if (queue.length === 0) return alert("範囲内に例文が見つかりません。");
     results = [];
     document.getElementById("setup").classList.remove('active');
     document.getElementById("app").classList.add('active');
@@ -326,11 +264,10 @@ function nextWord() {
     clearTimeout(stressTimer);
     const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
-    const jaEl = document.getElementById("japaneseWord");
     track.classList.remove('active');
     bar.style.transition = "none";
     bar.style.width = "0%";
-    jaEl.classList.remove('visible');
+    document.getElementById("japaneseWord").classList.remove('visible');
     
     if (queue.length === 0) return finishTraining();
     activeWord = queue.shift();
@@ -341,38 +278,23 @@ function nextWord() {
     
     const badge = document.getElementById("wordBadge");
     const status = mastery[activeWord.id];
-    badge.textContent = status ? status : "NEW";
+    badge.textContent = status ? status.toUpperCase() : "NEW";
     badge.style.color = status === 'c' ? "var(--danger)" : (status === 'b' ? "var(--accent)" : (status === 'a' ? "var(--gold)" : "var(--gray)"));
 
     document.getElementById("englishWord").textContent = activeWord.en;
     document.getElementById("japaneseWord").textContent = activeWord.ja;
     
-    speakEn(activeWord.en);
-}
-
-function speakEn(txt) {
-    window.speechSynthesis.cancel();
-    const ut = new SpeechSynthesisUtterance(txt);
-    ut.lang = 'en-US';
-    ut.rate = parseFloat(document.getElementById('rateEn').value) || 1.3;
-    if (enVoice) ut.voice = enVoice;
-    ut.onend = () => {
+    speak(activeWord.en, 'en-US', 'rateEn');
+    
+    setTimeout(() => {
         document.getElementById("japaneseWord").classList.add('visible');
-        speakJa(activeWord.ja);
-    };
-    window.speechSynthesis.speak(ut);
-}
-
-function speakJa(txt) {
-    const ut = new SpeechSynthesisUtterance(txt);
-    ut.lang = 'ja-JP';
-    ut.rate = parseFloat(document.getElementById('rateJa').value) || 1.5;
-    ut.onend = () => startStressTimer();
-    window.speechSynthesis.speak(ut);
+        speak(activeWord.ja, 'ja-JP', 'rateJa');
+        startStressTimer();
+    }, 1200);
 }
 
 function startStressTimer() {
-    const sec = parseFloat(document.getElementById('limitTime').value) || 1.0;
+    const sec = parseFloat(document.getElementById('limitTime').value) || 1.5;
     const track = document.getElementById("timerTrack");
     const bar = document.getElementById("timerBar");
     track.classList.add('active');
@@ -383,16 +305,16 @@ function startStressTimer() {
 
 function processAnswer(isOk) {
     clearTimeout(stressTimer);
+    if (!activeWord) return;
+    playSound(isOk ? 'correct' : 'wrong');
     const id = activeWord.id;
-    const prev = mastery[id];
     if (isOk) {
-        if (prev === 'c') mastery[id] = 'b';
-        else mastery[id] = 'a';
+        mastery[id] = (mastery[id] === 'c') ? 'b' : 'a';
     } else {
         mastery[id] = 'c';
     }
     results.push({ ...activeWord, ok: isOk });
-    saveAll();
+    saveMastery();
     nextWord();
 }
 
@@ -401,53 +323,75 @@ function finishTraining() {
     document.getElementById("app").classList.remove('active');
     document.getElementById("report").classList.add('active');
     const okCount = results.filter(r => r.ok).length;
-    const missed = results.filter(r => !r.ok);
-    document.getElementById("resultScore").textContent = `${okCount} / ${results.length} (${((okCount/results.length)*100||0).toFixed(1)}%)`;
-    document.getElementById("wrongListArea").value = missed.map(m => m.raw).join('\n');
-    document.getElementById("numericalArea").value = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
+    document.getElementById("resultScore").textContent = `${okCount} / ${results.length}`;
+    document.getElementById("wrongArea").value = results.filter(r => !r.ok).map(m => m.raw).join('\n');
+    document.getElementById("numArea").value = Object.keys(mastery).sort((a,b)=>a-b).map(id=>`${id}${mastery[id]}`).join(',');
 }
 
-function quickCopy() {
-    saveAll();
-    const s = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
-    navigator.clipboard.writeText(s).then(() => {
-        const b = document.getElementById('midBtn');
-        const old = b.textContent;
-        b.textContent = "コピー完了";
-        setTimeout(() => b.textContent = old, 1000);
+function saveMastery() {
+    localStorage.setItem('recitation_mastery_v15', JSON.stringify(mastery));
+}
+
+function adj(id, delta) {
+    const el = document.getElementById(id);
+    el.value = Math.max(1, parseInt(el.value) + delta);
+    if(id==='rangeEnd' && el.value > CURRENT_TOTAL) el.value = CURRENT_TOTAL;
+    updateDashboard();
+}
+
+function adjF(id, delta) {
+    const el = document.getElementById(id);
+    let v = parseFloat(el.value) || 0;
+    el.value = Math.max(0.1, Math.round((v + delta) * 10) / 10).toFixed(1);
+}
+
+function exportData() {
+    const s = Object.keys(mastery).sort((a,b)=>a-b).map(id=>`${id}${mastery[id]}`).join(',');
+    document.getElementById('importArea').value = s;
+    navigator.clipboard.writeText(s).then(() => alert("コードをコピーしました"));
+}
+
+function importData() {
+    const txt = document.getElementById('importArea').value.trim();
+    if(!txt) return;
+    mastery = {};
+    txt.split(',').forEach(t => {
+        const m = t.match(/(\d+)([abc])/);
+        if (m) mastery[parseInt(m[1])] = m[2];
     });
+    saveMastery(); updateDashboard();
+    alert("復元しました");
+}
+
+function clearImport() {
+    if(confirm("すべてリセットしますか？")) {
+        mastery = {}; localStorage.removeItem('recitation_mastery_v15');
+        updateDashboard();
+    }
 }
 
 function copyText(id, btn) {
     const el = document.getElementById(id);
     navigator.clipboard.writeText(el.value).then(() => {
-        const old = btn.textContent;
-        btn.textContent = "完了";
+        const old = btn.textContent; btn.textContent = "OK";
         setTimeout(() => btn.textContent = old, 1000);
     });
 }
 
-function exportData() {
-    const s = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
-    document.getElementById('importArea').value = s;
-    navigator.clipboard.writeText(s).then(() => alert("データをコピーしました"));
-}
-
-function clearImport() {
-    if(!confirm("リセットしますか？")) return;
-    mastery = {}; document.getElementById('importArea').value = '';
-    localStorage.removeItem('recitation_mastery_v15'); updateDashboard();
-}
+window.onload = () => {
+    loadData();
+    const saved = localStorage.getItem('recitation_mastery_v15');
+    if (saved) mastery = JSON.parse(saved);
+    updateDashboard();
+};
 
 document.onkeydown = (e) => {
     if (!document.getElementById("app").classList.contains('active')) return;
-    const k = e.key.toLowerCase();
-    if (k === 'z') processAnswer(true);
-    if (k === 'a') processAnswer(false);
+    if (e.key.toLowerCase() === 'z') processAnswer(true);
+    if (e.key.toLowerCase() === 'a') processAnswer(false);
     if (e.code === 'Space') { e.preventDefault(); finishTraining(); }
 };
 </script>
-
 
 <script type="text/plain" id="words-data">
 I talk.,私は話します(主語を見抜く)1
@@ -558,10 +502,10 @@ A small house.,小さな家(形容詞を名詞の前に置く)105
 He is tall.,彼は背が高いです(形容詞を補語にする)106
 An old man.,一人の老人(限定用法を使う)107
 The man is old.,その男は年老いています(叙述用法を使う)108
-A beautiful large round table.,美しくて大きな丸いテーブル(形容詞の語順を並べる)109
+A beautiful large round table.,美しくて大きな丸いテーブル(形容詞の語順を並める)109
 Many people.,多くの人々(数量形容詞を使う)110
 An exciting game.,わくわくする試合(-ing 形容詞を使う)111
-An excited crowd.,興奮した群衆(-ed 形容詞を使う)112
+An excited crowd.,興興奮した群衆(-ed 形容詞を使う)112
 It is boring.,それは退屈です(感情形容詞を使い分ける)113
 The fish is alive.,その魚は生きています(alive など後置形容詞を使う)114
 A bag full of books.,本でいっぱいのカバン(形容詞句で名詞を後ろから修飾する)115
@@ -588,7 +532,7 @@ Too hot.,暑すぎます(too を副詞で使う)135
 Very cold.,とても寒いです(very を副詞で使う)136
 So fast.,とても速く(so を副詞で使う)137
 A girl in the park.,公園にいる少女(修飾語のかかり先を特定する)138
-A sleeping baby.,眠っている赤ちゃん(前置飾を読む)139
+A sleeping baby.,眠っている赤ちゃん(前置修飾を読む)139
 The boy running there.,あそこを走っている少年(後置修飾を読む)140
 The book on the desk which I bought.,私が買った机の上の本(遠距離修飾を読む)141
 The man sitting by the door.,ドアのそばに座っている男(分詞句の修飾範囲を読む)142
@@ -951,7 +895,7 @@ To be or not to be.,生か死か(共通部分を省略する)498
 Hearing the news, she cried.,知らせを聞いて彼女は泣いた(節を分詞句に変換する)499
 When she heard the news, she cried.,知らせを聞いたとき彼女は泣いた(分詞句を節に戻す)500
 To see her is my goal.,彼女に会うことが私の目標です(不定詞句を名詞句に書き換える)501
-I expect to win.,勝つことを期待しています(節を不定詞句に圧縮する)502
+I expect to win.,勝ことを期待しています(節を不定詞句に圧縮する)502
 He left because of the rain.,彼は雨のために帰りました(節を前置詞句に圧縮する)503
 The girl dancing there is Sue.,あそこで踊っている少女はスーです(分詞句を関係詞節に戻す)504
 In my opinion, it is good.,私の意見では、それは良いです(前置詞句を節として復元する)505
@@ -1205,7 +1149,7 @@ Take over the task.,仕事を引き継ぐ(take over を使う)752
 Take up space.,場所を取る(take up を使う)753
 Make up a story.,話を作る(make up を使う)754
 Make for home.,家に向かう(make for を使う)755
-Come across a friend.,友達にばったり会う(come across を使う)756
+Come across a friend.,友達にばっぱり会う(come across を使う)756
 Come up with a solution.,解決策を思いつく(come up with を使う)757
 The truth came out.,真実が明らかになった(come out を使う)758
 Life goes on.,人生は続く(go on を使う)759
@@ -1439,7 +1383,7 @@ Granted that it's true, it doesn't matter.,それが本当だとしても、大�
 Provided that the weather is fine, we'll go.,天気が良ければ、私たちは行きます(provided を使う)987
 Providing that he is honest, I'll hire him.,彼が正直なら、彼を雇います(providing を使う)988
 Supposing it rains, what will you do?,もし雨が降ったら、どうしますか(supposing を使う)989
-Seeing that he is young, he did well.,彼が若いことを考えれば、よくやりました(seeing that を使う)990
+Seeing that he is young.,彼が若いことを考えれば、よくやりました(seeing that を使う)990
 I'll finish it as soon as possible.,できるだけ早くそれを終わらせます(as soon as possible と as ... as possible を使い分ける)991
 It rained throughout the night.,一晩中雨が降っていました(over と throughout を使い分ける)992
 We were busy during the day.,私たちは日中忙しかったです(during と throughout を使い分ける)993
@@ -1451,5 +1395,6 @@ The door closed of itself.,ドアが自然に閉まりました(of itself を使
 He is not at all tired.,彼は少しも疲れていません(at all と not at all を使い分ける)999
 I think that the most important thing in life is to keep learning every day.,人生で最も大切なことは、毎日学び続けることだと私は思います(文全体の構造と意味を最後まで統合して読む)1000
 </script>
+
 </body>
 </html>
