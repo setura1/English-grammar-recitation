@@ -86,7 +86,8 @@
         
         .ans-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; margin-bottom: 12px; }
         .ans-btn { height: 90px; border: none; border-radius: 32px; color: white; font-size: 26px; font-weight: 900; cursor: pointer; transition: 0.15s; }
-        .ans-btn:active { transform: scale(0.94); }
+        .ans-btn:disabled { background: #374151 !important; color: #6b7280; cursor: not-allowed; transform: none !important; opacity: 0.6; }
+        .ans-btn:active:not(:disabled) { transform: scale(0.94); }
         #correctBtn { background: var(--success); }
         #wrongBtn { background: var(--danger); }
     </style>
@@ -121,7 +122,7 @@
                     <button class="io-btn" style="background:#4b5563;" onclick="clearImport()">消去</button>
                 </div>
             </div>
-            <textarea id="importArea" oninput="updateDashboard()" placeholder="保存用データを貼り付けて「復元」"></textarea>
+            <textarea id="importArea" oninput="updateDashboard()" placeholder="ここに保存用データを貼り付けて「復元」"></textarea>
         </div>
 
         <div class="range-box">
@@ -142,7 +143,7 @@
             </div>
         </div>
 
-        <div class="label">修行テンポ設定</div>
+        <div class="label">テンポ設定</div>
         <div class="param-grid">
             <div class="input-group"><span>英語速度</span><input type="number" id="rateEn" value="1.3" step="0.1"></div>
             <div class="input-group"><span>日本語速度</span><input type="number" id="rateJa" value="1.5" step="0.1"></div>
@@ -166,8 +167,8 @@
         <div id="timerTrack"><div id="timerBar"></div></div>
     </div>
     <div class="ans-btns">
-        <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
-        <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">わかる (Z)</button>
+        <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)" disabled>苦手 (A)</button>
+        <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)" disabled>わかる (Z)</button>
     </div>
     <div style="display:flex; justify-content: space-between; padding: 5px 10px;">
         <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:11px; font-weight:bold; cursor:pointer;">中断 (Space)</button>
@@ -196,6 +197,7 @@ let results = [];
 let activeWord = null;
 let stressTimer = null;
 let audioCtx = null;
+let buttonsEnabled = false;
 
 function playSound(type) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -238,8 +240,15 @@ function updateDashboard() {
     });
 }
 
+function setButtonsState(enabled) {
+    buttonsEnabled = enabled;
+    document.getElementById("wrongBtn").disabled = !enabled;
+    document.getElementById("correctBtn").disabled = !enabled;
+}
+
 function speakEn(txt) {
     window.speechSynthesis.cancel();
+    setButtonsState(false); // 英語読み上げ開始時にボタン無効化
     const ut = new SpeechSynthesisUtterance(txt);
     ut.lang = 'en-US';
     ut.rate = parseFloat(document.getElementById('rateEn').value) || 1.3;
@@ -254,6 +263,10 @@ function speakJa(txt) {
     const ut = new SpeechSynthesisUtterance(txt);
     ut.lang = 'ja-JP';
     ut.rate = parseFloat(document.getElementById('rateJa').value) || 1.5;
+    
+    // 日本語読み上げ開始と同時にボタンを有効化
+    setButtonsState(true); 
+    
     ut.onend = () => startStressTimer();
     window.speechSynthesis.speak(ut);
 }
@@ -308,10 +321,13 @@ function startStressTimer() {
     track.classList.add('active');
     bar.style.transition = `width ${sec}s linear`;
     bar.style.width = "100%";
-    stressTimer = setTimeout(() => processAnswer(false), sec * 1000);
+    stressTimer = setTimeout(() => {
+        if (buttonsEnabled) processAnswer(false);
+    }, sec * 1000);
 }
 
 function processAnswer(isOk) {
+    if (!buttonsEnabled) return; // 英語読み上げ中は無視
     clearTimeout(stressTimer);
     if (!activeWord) return;
     playSound(isOk ? 'correct' : 'wrong');
@@ -322,7 +338,9 @@ function processAnswer(isOk) {
         mastery[id] = 'c';
     }
     results.push({ ...activeWord, ok: isOk });
-    saveMastery(); nextWord();
+    saveMastery(); 
+    setButtonsState(false); // 次の単語に行く前に一旦無効化
+    nextWord();
 }
 
 function finishTraining() {
@@ -404,6 +422,7 @@ window.onload = () => {
 
 document.onkeydown = (e) => {
     if (!document.getElementById("app").classList.contains('active')) return;
+    if (!buttonsEnabled) return; // 読み上げ中はキー操作も無効化
     const k = e.key.toLowerCase();
     if (k === 'z') processAnswer(true);
     if (k === 'a') processAnswer(false);
@@ -913,7 +932,7 @@ To be or not to be.,生か死か(共通部分を省略する)498
 Hearing the news, she cried.,知らせを聞いて彼女は泣いた(節を分詞句に変換する)499
 When she heard the news, she cried.,知らせを聞いたとき彼女は泣いた(分詞句を節に戻す)500
 To see her is my goal.,彼女に会うことが私の目標です(不定詞句を名詞句に書き換える)501
-I expect to win.,勝つことを期待しています(節を不定詞句に圧縮する)502
+I expect to win.,勝ことを期待しています(節を不定詞句に圧縮する)502
 He left because of the rain.,彼は雨のために帰りました(節を前置詞句に圧縮する)503
 The girl dancing there is Sue.,あそこで踊っている少女はスーです(分詞句を関係詞節に戻す)504
 In my opinion, it is good.,私の意見では、それは良いです(前置詞句を節として復元する)505
@@ -1167,7 +1186,7 @@ Take over the task.,仕事を引き継ぐ(take over を使う)752
 Take up space.,場所を取る(take up を使う)753
 Make up a story.,話を作る(make up を使う)754
 Make for home.,家に向かう(make for を使う)755
-Come across a friend.,友達にばったり会う(come across を使う)756
+Come across a friend.,友達にばっぱり会う(come across を使う)756
 Come up with a solution.,解決策を思いつく(come up with を使う)757
 The truth came out.,真実が明らかになった(come out を使う)758
 Life goes on.,人生は続く(go on を使う)759
@@ -1197,7 +1216,7 @@ Moreover, he is kind.,その上、彼は親切です(moreover を使う)782
 In addition, I'm tired.,加えて、私は疲れています(in addition を使う)783
 Besides, I have no money.,それに、お金がありません(besides を接続副詞で使う)784
 However, he is happy.,しかし、彼は幸せです(however を使う)785
-Nevertheless, she tried.,それにもかかわらず、彼女は挑戦しました(nevertheless を使う)786
+Nevertheles, she tried.,それにもかかわらず、彼女は挑戦しました(nevertheless を使う)786
 Nonetheless, it is true.,それでもやはり、それは事実です(nonetheless を使う)787
 On the other hand, it's risky.,一方で、それは危険です(on the other hand を使う)788
 Use this instead.,代わりにこれを使って(instead を使う)789
