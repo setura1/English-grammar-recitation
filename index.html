@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
     <title>英語例文暗唱修行 V15.0 究極管理版</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --bg: #030712;
@@ -42,7 +44,7 @@
         .seg-new { background: #4b5563; }
         .db-legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .lg-item { text-align: center; }
-        .lg-label { font-size: 10px; color: var(--gray); display: block; margin-bottom: 2px; }
+        .lg-label { font-size: 10px; color: var(--gray); display: block; margin-bottom: 2px; font-weight: bold; }
         .lg-val { font-size: 12px; font-weight: 900; }
 
         .label { font-size: 11px; font-weight: 800; color: var(--silver); margin: 16px 0 6px 4px; display: flex; justify-content: space-between; align-items: center; }
@@ -71,7 +73,7 @@
         #card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; gap: 10px; background: var(--card-bg); border-radius: 48px; margin: 10px 0; position: relative; border: 1px solid #374151; box-shadow: inset 0 0 40px rgba(0,0,0,0.4); }
         #wordBadge { position: absolute; top: 30px; font-size: 18px; font-weight: 900; padding: 4px 18px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 2px solid currentColor; }
         
-        #englishWord { font-size: 34px; font-weight: 900; line-height: 1.25; color: var(--text); word-break: break-word; max-width: 95%; margin-top: 40px; }
+        #englishWord { font-size: 32px; font-weight: 900; line-height: 1.3; color: var(--text); word-break: break-word; max-width: 95%; margin-top: 40px; }
         #japaneseWord { font-size: 22px; color: var(--gold); font-weight: 800; visibility: hidden; min-height: 1.5em; margin-top: 15px; }
         #japaneseWord.visible { visibility: visible; }
         
@@ -93,7 +95,7 @@
 
 <div id="setup" class="active">
     <div class="container">
-        <h1>暗唱修行 V15.0：1000例文</h1>
+        <h1>英語例文暗唱修行 V15.0</h1>
 
         <div class="dashboard">
             <div class="db-bar">
@@ -119,7 +121,7 @@
                     <button class="io-btn" style="background:#4b5563;" onclick="clearImport()">消去</button>
                 </div>
             </div>
-            <textarea id="importArea" oninput="updateDashboard()" placeholder="ここに保存用データを貼り付けて「復元」"></textarea>
+            <textarea id="importArea" oninput="updateDashboard()" placeholder="保存用データを貼り付けて「復元」"></textarea>
         </div>
 
         <div class="range-box">
@@ -131,16 +133,16 @@
                 </div>
                 <div class="input-group">
                     <span>終了ID</span>
-                    <div class="adj-container"><button class="adj-btn" onclick="adj('rangeEnd', -100)">-</button><input type="number" id="rangeEnd" value="1000"><button class="adj-btn" onclick="adj('rangeEnd', 100)">+</button></div>
+                    <div class="adj-container"><button class="adj-btn" onclick="adj('rangeEnd', -100)">-</button><input type="number" id="rangeEnd" value="100"><button class="adj-btn" onclick="adj('rangeEnd', 100)">+</button></div>
                 </div>
             </div>
             <div class="input-group" style="background: rgba(255,255,255,0.05); margin-top:8px;">
                 <span>今回の修行数</span>
-                <div class="adj-container"><button class="adj-btn" onclick="adj('testLimit', -20)">-20</button><input type="number" id="testLimit" value="50"><button class="adj-btn" onclick="adj('testLimit', 20)">+20</button></div>
+                <div class="adj-container"><button class="adj-btn" onclick="adj('testLimit', -10)">-10</button><input type="number" id="testLimit" value="20"><button class="adj-btn" onclick="adj('testLimit', 10)">+10</button></div>
             </div>
         </div>
 
-        <div class="label">テンポ設定</div>
+        <div class="label">修行テンポ設定</div>
         <div class="param-grid">
             <div class="input-group"><span>英語速度</span><input type="number" id="rateEn" value="1.3" step="0.1"></div>
             <div class="input-group"><span>日本語速度</span><input type="number" id="rateJa" value="1.5" step="0.1"></div>
@@ -167,8 +169,9 @@
         <button id="wrongBtn" class="ans-btn" onclick="processAnswer(false)">苦手 (A)</button>
         <button id="correctBtn" class="ans-btn" onclick="processAnswer(true)">わかる (Z)</button>
     </div>
-    <div style="display:flex; justify-content: center;">
+    <div style="display:flex; justify-content: space-between; padding: 5px 10px;">
         <button onclick="finishTraining()" style="background:none; border:none; color:var(--gray); font-size:11px; font-weight:bold; cursor:pointer;">中断 (Space)</button>
+        <button onclick="quickCopy()" id="midBtn" class="sm-btn">進捗保存コピー</button>
     </div>
 </div>
 
@@ -176,10 +179,10 @@
     <div class="container" style="text-align:center;">
         <h1>修行完了</h1>
         <div id="resultScore" style="font-size:32px; font-weight:900; color:var(--success); margin-bottom:20px;"></div>
-        <div class="label"><span>間違えた例文リスト</span><button class="sm-btn" onclick="copyText('wrongArea', this)">コピー</button></div>
-        <textarea id="wrongArea" style="height:100px; color:var(--danger);" readonly></textarea>
-        <div class="label" style="margin-top:15px;"><span>保存用コード</span><button class="sm-btn" onclick="copyText('numArea', this)">コピー</button></div>
-        <textarea id="numArea" style="height:60px;" readonly></textarea>
+        <div class="label"><span>今回間違えた例文リスト</span><button class="sm-btn" onclick="copyText('wrongListArea', this)">コピー</button></div>
+        <textarea id="wrongListArea" style="height:110px; color:var(--danger);" readonly></textarea>
+        <div class="label" style="margin-top:20px;"><span>保存用数値データ</span><button class="sm-btn" onclick="copyText('numericalArea', this)">コピー</button></div>
+        <textarea id="numericalArea" style="height:70px;" readonly></textarea>
         <button class="main-btn" onclick="location.reload()" style="margin-top:25px; background:var(--gray);">トップへ戻る</button>
     </div>
 </div>
@@ -235,11 +238,23 @@ function updateDashboard() {
     });
 }
 
-function speak(txt, lang, rateKey) {
+function speakEn(txt) {
     window.speechSynthesis.cancel();
     const ut = new SpeechSynthesisUtterance(txt);
-    ut.lang = lang;
-    ut.rate = parseFloat(document.getElementById(rateKey).value) || 1.3;
+    ut.lang = 'en-US';
+    ut.rate = parseFloat(document.getElementById('rateEn').value) || 1.3;
+    ut.onend = () => {
+        document.getElementById("japaneseWord").classList.add('visible');
+        speakJa(activeWord.ja);
+    };
+    window.speechSynthesis.speak(ut);
+}
+
+function speakJa(txt) {
+    const ut = new SpeechSynthesisUtterance(txt);
+    ut.lang = 'ja-JP';
+    ut.rate = parseFloat(document.getElementById('rateJa').value) || 1.5;
+    ut.onend = () => startStressTimer();
     window.speechSynthesis.speak(ut);
 }
 
@@ -283,14 +298,7 @@ function nextWord() {
 
     document.getElementById("englishWord").textContent = activeWord.en;
     document.getElementById("japaneseWord").textContent = activeWord.ja;
-    
-    speak(activeWord.en, 'en-US', 'rateEn');
-    
-    setTimeout(() => {
-        document.getElementById("japaneseWord").classList.add('visible');
-        speak(activeWord.ja, 'ja-JP', 'rateJa');
-        startStressTimer();
-    }, 1200);
+    speakEn(activeWord.en);
 }
 
 function startStressTimer() {
@@ -314,8 +322,7 @@ function processAnswer(isOk) {
         mastery[id] = 'c';
     }
     results.push({ ...activeWord, ok: isOk });
-    saveMastery();
-    nextWord();
+    saveMastery(); nextWord();
 }
 
 function finishTraining() {
@@ -323,9 +330,9 @@ function finishTraining() {
     document.getElementById("app").classList.remove('active');
     document.getElementById("report").classList.add('active');
     const okCount = results.filter(r => r.ok).length;
-    document.getElementById("resultScore").textContent = `${okCount} / ${results.length}`;
-    document.getElementById("wrongArea").value = results.filter(r => !r.ok).map(m => m.raw).join('\n');
-    document.getElementById("numArea").value = Object.keys(mastery).sort((a,b)=>a-b).map(id=>`${id}${mastery[id]}`).join(',');
+    document.getElementById("resultScore").textContent = `${okCount} / ${results.length} 正解`;
+    document.getElementById("wrongListArea").value = results.filter(r => !r.ok).map(m => m.raw).join('\n');
+    document.getElementById("numericalArea").value = Object.keys(mastery).sort((a,b)=>a-b).map(id=>`${id}${mastery[id]}`).join(',');
 }
 
 function saveMastery() {
@@ -363,8 +370,18 @@ function importData() {
     alert("復元しました");
 }
 
+function quickCopy() {
+    saveMastery();
+    const s = Object.keys(mastery).sort((a, b) => a - b).map(id => `${id}${mastery[id]}`).join(',');
+    navigator.clipboard.writeText(s).then(() => {
+        const b = document.getElementById('midBtn');
+        b.textContent = "コピー完了";
+        setTimeout(() => b.textContent = "進捗保存コピー", 1000);
+    });
+}
+
 function clearImport() {
-    if(confirm("すべてリセットしますか？")) {
+    if(confirm("学習データをリセットしますか？")) {
         mastery = {}; localStorage.removeItem('recitation_mastery_v15');
         updateDashboard();
     }
@@ -373,7 +390,7 @@ function clearImport() {
 function copyText(id, btn) {
     const el = document.getElementById(id);
     navigator.clipboard.writeText(el.value).then(() => {
-        const old = btn.textContent; btn.textContent = "OK";
+        const old = btn.textContent; btn.textContent = "完了";
         setTimeout(() => btn.textContent = old, 1000);
     });
 }
@@ -387,8 +404,9 @@ window.onload = () => {
 
 document.onkeydown = (e) => {
     if (!document.getElementById("app").classList.contains('active')) return;
-    if (e.key.toLowerCase() === 'z') processAnswer(true);
-    if (e.key.toLowerCase() === 'a') processAnswer(false);
+    const k = e.key.toLowerCase();
+    if (k === 'z') processAnswer(true);
+    if (k === 'a') processAnswer(false);
     if (e.code === 'Space') { e.preventDefault(); finishTraining(); }
 };
 </script>
@@ -505,7 +523,7 @@ The man is old.,その男は年老いています(叙述用法を使う)108
 A beautiful large round table.,美しくて大きな丸いテーブル(形容詞の語順を並める)109
 Many people.,多くの人々(数量形容詞を使う)110
 An exciting game.,わくわくする試合(-ing 形容詞を使う)111
-An excited crowd.,興興奮した群衆(-ed 形容詞を使う)112
+An excited crowd.,興奮した群衆(-ed 形容詞を使う)112
 It is boring.,それは退屈です(感情形容詞を使い分ける)113
 The fish is alive.,その魚は生きています(alive など後置形容詞を使う)114
 A bag full of books.,本でいっぱいのカバン(形容詞句で名詞を後ろから修飾する)115
@@ -536,7 +554,7 @@ A sleeping baby.,眠っている赤ちゃん(前置修飾を読む)139
 The boy running there.,あそこを走っている少年(後置修飾を読む)140
 The book on the desk which I bought.,私が買った机の上の本(遠距離修飾を読む)141
 The man sitting by the door.,ドアのそばに座っている男(分詞句の修飾範囲を読む)142
-The car that he likes.,彼が好きな車(関係詞節の修飾範囲を読む)143
+The car that he likes.,彼が好きな車(関係詞節의修飾範囲を読む)143
 The news that he won.,彼が勝ったという知らせ(同格句の修飾範囲を読む)144
 Information.,情報(接尾辞で名詞を作る)145
 Useful.,役に立つ(接尾辞で形容詞を作る)146
@@ -575,7 +593,7 @@ I want you to stay.,あなたにいてほしいです(want 人 to V を使う)17
 I expect him to win.,彼が勝つことを期待しています(expect 人 to V を使う)179
 He advised me to rest.,彼は私に休むよう助言しました(advise 人 to V を使う)180
 They forced him to sign.,彼らは彼に署名を強いました(force 人 to V を使う)181
-This tool enables us to work.,この道具のおかげで私たちは働けます(enable 人 to V を使う)182
+This tool enables us to work.,この道具のおけで私たちは働けます(enable 人 to V を使う)182
 Remind me to call him.,彼に電話するのを忘れないよう言ってください(remind 人 to V で念押しする)183
 I persuaded him to come.,私は彼に来るよう説得しました(persuade 人 to V を使う)184
 She encouraged me to try.,彼女は私にやってみるよう励ましました(encourage 人 to V を使う)185
@@ -789,7 +807,7 @@ When he comes, I will leave.,彼が来たら出発します(when を使う)392
 While I was sleeping, he came.,私が寝ている間に彼が来ました(while を使う)393
 Wash your hands before you eat.,食べる前に手を洗いなさい(before を使う)394
 After he left, she arrived.,彼が去った後で彼女が着きました(after を使う)395
-Wait until he returns.,彼が戻るまで待ちなさい(until を使う)400
+Wait until he returns.,彼が戻るまで待ちなさい(until を使う)396
 Once you start, you must finish.,一度始めたら終えなければなりません(once を使う)397
 As soon as he arrived, he called me.,彼は着くとすぐに電話をくれました(as soon as を使う)398
 You can stay as long as you like.,好きなだけいていいですよ(as long as を使う)399
@@ -895,7 +913,7 @@ To be or not to be.,生か死か(共通部分を省略する)498
 Hearing the news, she cried.,知らせを聞いて彼女は泣いた(節を分詞句に変換する)499
 When she heard the news, she cried.,知らせを聞いたとき彼女は泣いた(分詞句を節に戻す)500
 To see her is my goal.,彼女に会うことが私の目標です(不定詞句を名詞句に書き換える)501
-I expect to win.,勝ことを期待しています(節を不定詞句に圧縮する)502
+I expect to win.,勝つことを期待しています(節を不定詞句に圧縮する)502
 He left because of the rain.,彼は雨のために帰りました(節を前置詞句に圧縮する)503
 The girl dancing there is Sue.,あそこで踊っている少女はスーです(分詞句を関係詞節に戻す)504
 In my opinion, it is good.,私の意見では、それは良いです(前置詞句を節として復元する)505
@@ -1064,7 +1082,7 @@ According to the weather report.,天気予報によれば(according to を使う
 Due to the heavy rain.,大雨のために(due to を使う)668
 Because of the heat.,暑さのために(because of を使う)669
 Owing to the delay.,遅れのために(owing to を使う)670
-Thanks to your help.,あなたの助けのおかげで(thanks to を使う)671
+Thanks to your help.,あなたの助けのおかけで(thanks to を使う)671
 Despite the cold.,寒さにもかかわらず(despite を使う)672
 In spite of his age.,彼の年齢にもかかわらず(in spite of を使う)673
 Instead of coffee.,コーヒーの代わりに(instead of を使う)674
@@ -1149,7 +1167,7 @@ Take over the task.,仕事を引き継ぐ(take over を使う)752
 Take up space.,場所を取る(take up を使う)753
 Make up a story.,話を作る(make up を使う)754
 Make for home.,家に向かう(make for を使う)755
-Come across a friend.,友達にばっぱり会う(come across を使う)756
+Come across a friend.,友達にばったり会う(come across を使う)756
 Come up with a solution.,解決策を思いつく(come up with を使う)757
 The truth came out.,真実が明らかになった(come out を使う)758
 Life goes on.,人生は続く(go on を使う)759
